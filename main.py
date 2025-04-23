@@ -1,99 +1,14 @@
-import os
-import time
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import WebDriverWait, Select
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.action_chains import ActionChains
+from flask import Flask, jsonify
+from stock_valuation import getStockValuation
 
+app = Flask(__name__)
 
+@app.route("/", methods=["GET"])
+def index():
+    result = getStockValuation()
+    return jsonify({"status": result})
 
-def log(msg):
-    print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {msg}", flush=True)
-
-def wait_for_download(directory, extension=".xlsx", timeout=30):
-    log("Waiting for download to complete...")
-    end_time = time.time() + timeout
-    while time.time() < end_time:
-        files = [f for f in os.listdir(directory) if f.endswith(extension) and not f.endswith(".crdownload")]
-        if files:
-            return os.path.join(directory, files[0])
-        time.sleep(1)
-    raise Exception("Download timeout")
-
-# Set download path inside container or for local testing
-download_path = os.path.join(os.getcwd(), "Frono_Stock_Valuation_Report", "Kolkata")
-os.makedirs(download_path, exist_ok=True)
-log(f"Download path set to: {download_path}")
-
-# Load credentials from environment variables
-FRONO_USERNAME = os.getenv("FRONO_USERNAME")
-FRONO_PASSWORD = os.getenv("FRONO_PASSWORD")
-
-if not FRONO_USERNAME or not FRONO_PASSWORD:
-    raise EnvironmentError("FRONO_USERNAME or FRONO_PASSWORD missing.")
-log("Credentials loaded successfully")
-
-# Chrome options
-log("Configuring headless Chrome...")
-options = webdriver.ChromeOptions()
-options.add_argument("--headless")
-options.add_argument("--no-sandbox")
-options.add_argument("--disable-dev-shm-usage")
-options.add_argument(f"--window-size=1920,1080")
-options.add_argument(f"--disable-gpu")
-options.add_argument(f"--disable-software-rasterizer")
-options.add_argument(f"--remote-debugging-port=9222")
-prefs = {
-    "download.default_directory": download_path,
-    "download.prompt_for_download": False,
-    "download.directory_upgrade": True,
-    "safebrowsing.enabled": True
-}
-options.add_experimental_option("prefs", prefs)
-
-log("Launching browser...")
-driver = webdriver.Chrome(options=options)
-actions = ActionChains(driver)
-
-try:
-    log("Opening FronoCloud login page...")
-    driver.get("https://fronocloud.com/login")
-
-    log("Entering username and password...")
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "userName"))).send_keys(FRONO_USERNAME)
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "password"))).send_keys(FRONO_PASSWORD + Keys.RETURN)
-
-    log("Navigating to 'Stock Valuation' page...")
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "pn_id_3_7_header"))).click()
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.LINK_TEXT, "Stock Valuation"))).click()
-    time.sleep(1)
-
-    log("Selecting stock filter...")
-    dropdown = Select(WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "basicSelect"))))
-    dropdown.select_by_index(0)
-
-    log("Clicking 'Advance Filter' and applying filters...")
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//button[@title='Advance filter']"))).click()
-    time.sleep(1)
-    actions.key_down(Keys.ALT).send_keys('a').key_up(Keys.ALT).perform()
-    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Apply']"))).click()
-
-    log("Running the search...")
-    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()=' Search ']"))).click()
-    time.sleep(4)
-
-    log("Clicking 'Excel' button to start download...")
-    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[@title='Excel']"))).click()
-
-    downloaded_file = wait_for_download(download_path)
-    log(f"✅ Downloaded file saved as: {downloaded_file}")
-
-except Exception as e:
-    log(f"❌ Error: {e}")
-
-finally:
-    log("Closing browser...")
-    driver.quit()
-
+if __name__ == "__main__":
+    import os
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)

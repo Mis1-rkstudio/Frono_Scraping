@@ -1,2 +1,6 @@
-selenium==4.18.1
-flask==3.1.0
+selenium
+pandas
+openpyxl
+google-cloud-bigquery
+Flask
+pytz

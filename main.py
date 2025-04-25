@@ -1,46 +1,49 @@
-from flask import Flask, jsonify
-from Sales.invoice import getSalesInvoiceData
-from goods_return import getGoodsReturn
-from inventory.stock import getStockData
-from item_wise_customer_report import getItemWiseSales
-from masters.broker import getBrokerData
-from masters.customer import getCustomerData
-from purchase.invoice import getPurchaseInvoiceData
-from purchase_pending_order import getPurchasePendingOrder
-from sales_order_details import getSalesOrderDetails
-from sales_pending_order import getSalesPendingOrder
-from stock_valuation import getStockValuation
+from flask import Flask
+import threading
+import datetime
+import pytz
+import scripts.main as scraper  # Your scraping function
+
 
 app = Flask(__name__)
 
+# Initialize last run time as None
+last_run_time = None
+
+# Define IST timezone
+IST = pytz.timezone('Asia/Kolkata')
+
+
 @app.route("/", methods=["GET"])
-def index():
-    stock_valuation = getStockValuation()
-    goods_return = getGoodsReturn()
-    item_wise_sales = getItemWiseSales()
-    sales_pending_order = getSalesPendingOrder()
-    sales_order_details = getSalesOrderDetails()
-    purchase_pending_order = getPurchasePendingOrder()
-    customer_data = getCustomerData()
-    broker_data = getBrokerData()
-    stock_data = getStockData()
-    purchase_invoice_data = getPurchaseInvoiceData()
-    sales_invoice_data = getSalesInvoiceData()
-    return jsonify({"status": "success", "data": {
-        "stock_valuation": stock_valuation,
-        "goods_return": goods_return,
-        "item_wise_sales": item_wise_sales,
-        "sales_pending_order": sales_pending_order,
-        "sales_order_details": sales_order_details,
-        "purchase_pending_order": purchase_pending_order,
-        "customer_data": customer_data,
-        "broker_data": broker_data,
-        "stock_data": stock_data,
-        "purchase_invoice_data": purchase_invoice_data,
-        "sales_invoice_data": sales_invoice_data
-    }})
+def home():
+    global last_run_time
+    if last_run_time:
+        ist_time = last_run_time.astimezone(IST)
+        last_run = ist_time.strftime("%Y-%m-%d %H:%M:%S")
+    else:
+        last_run = "No runs yet"
+        
+    return f"""
+    <h2>🛠️ Frono Automation Service</h2>
+    <p>Welcome! This Cloud Run service powers the automated scraping, file processing, and BigQuery uploads for FronoCloud reports.</p>
+    <ul>
+        <li>✅ <b>/health</b> → Health check endpoint</li>
+        <li>🚀 <b>/run</b> → Trigger scraping and data upload process</li>
+    </ul>
+    <hr>
+    <p><b>🕒 Last Scraper Run (IST):</b> {last_run}</p>
+    """, 200
+
+@app.route("/status", methods=["GET"])
+def health_check():
+    return "✅ Service is healthy", 200
+
+@app.route("/run", methods=["GET"])
+def run_scraper():
+    global last_run_time
+    last_run_time = datetime.datetime.now(pytz.utc)  # Save time in UTC first
+    threading.Thread(target=scraper.run_all_reports).start()
+    return "🚀 Scraper started!", 200
 
 if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 8080))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=8080)

@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import WebDriverWait, Select
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 
@@ -24,8 +24,8 @@ def wait_for_download(directory, extension=".xlsx", timeout=30):
 # Load environment variables
 load_dotenv()
 
-def getItemWiseCustomer():
-    download_path = os.path.join(os.getcwd(), "Kolkata", "Frono_Item_Wise_Customer_Report")
+def getItemWiseSales():
+    download_path = os.path.join(os.getcwd(), "Kolkata", "Frono_Item_Wise_Sales_Report")
     os.makedirs(download_path, exist_ok=True)
 
     FRONO_USERNAME = os.getenv("FRONO_USERNAME")
@@ -35,13 +35,13 @@ def getItemWiseCustomer():
         raise EnvironmentError("FRONO_USERNAME or FRONO_PASSWORD missing.")
 
     options = webdriver.ChromeOptions()
-    # options.add_argument("--headless")
-    # options.add_argument("--no-sandbox")
-    # options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
     options.add_argument(f"--window-size=1920,1080")
-    # options.add_argument(f"--disable-gpu")
-    # options.add_argument(f"--disable-software-rasterizer")
-    # options.add_argument(f"--remote-debugging-port=9222")
+    options.add_argument(f"--disable-gpu")
+    options.add_argument(f"--disable-software-rasterizer")
+    options.add_argument(f"--remote-debugging-port=9222")
     prefs = {
         "download.default_directory": download_path,
         "download.prompt_for_download": False,
@@ -66,30 +66,33 @@ def getItemWiseCustomer():
         log("Navigating to 'Sales Returns'...")
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.LINK_TEXT, "Item Wise Customer"))).click()
         time.sleep(2)
-
-        # TODO: Fix the date range selection
-        # WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "tlDateType"))).click()
-        # WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//tag[@attribute='value']"))).click()
         
         log("Opening advanced filter...")
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "08"))).click()
-        time.sleep(1)
+        time.sleep(2)
         actions.key_down(Keys.ALT).send_keys('a').key_up(Keys.ALT).perform()
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Apply']"))).click()
+
+        # Change this block ----------------------------------------------------------------------------------------- 
+        time.sleep(2)
+        actions.send_keys(Keys.TAB + Keys.TAB + Keys.TAB).perform()
+        driver.execute_script("arguments[0].click();", driver.switch_to.active_element)
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//a[text()='This Financial Year']"))).click()
+        # ------------------------------------------------------------------------------------------------------------
+
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()=' Search ']"))).click()
-        time.sleep(4)
+        time.sleep(10)
+
         log("Exporting to Excel...")
-        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[@title='Excel']"))).click()
-        log("After 'Sales Returns'...")
+        actions.send_keys(Keys.TAB + Keys.TAB + Keys.TAB + Keys.TAB + Keys.TAB + Keys.TAB + Keys.TAB + Keys.TAB + Keys.TAB + Keys.TAB + Keys.TAB + Keys.SPACE).perform()
 
 
-        # downloaded_file = wait_for_download(download_path)
-        # log(f"✅ Downloaded file saved as: {downloaded_file}")
-        
+        downloaded_file = wait_for_download(download_path)
+        log(f"✅ Downloaded file saved as: {downloaded_file}")
+        return f"Success: {downloaded_file}"
+    
     except Exception as e:
         print(f"An error occurred: {e}")
 
     finally:
         driver.quit()
-
-getItemWiseCustomer()

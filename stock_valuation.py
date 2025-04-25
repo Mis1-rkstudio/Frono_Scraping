@@ -35,13 +35,13 @@ def getStockValuation():
         raise EnvironmentError("FRONO_USERNAME or FRONO_PASSWORD missing.")
 
     options = webdriver.ChromeOptions()
-    # options.add_argument("--headless")
-    # options.add_argument("--no-sandbox")
-    # options.add_argument("--disable-dev-shm-usage")
-    # options.add_argument(f"--window-size=1920,1080")
-    # options.add_argument(f"--disable-gpu")
-    # options.add_argument(f"--disable-software-rasterizer")
-    # options.add_argument(f"--remote-debugging-port=9222")
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument(f"--window-size=1920,1080")
+    options.add_argument(f"--disable-gpu")
+    options.add_argument(f"--disable-software-rasterizer")
+    options.add_argument(f"--remote-debugging-port=9222")
     prefs = {
         "download.default_directory": download_path,
         "download.prompt_for_download": False,
@@ -69,12 +69,14 @@ def getStockValuation():
         dropdown = Select(WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "basicSelect"))))
         dropdown.select_by_index(0)
 
+        actions.key_down(Keys.SHIFT).send_keys(Keys.TAB + Keys.TAB + Keys.TAB + Keys.ARROW_RIGHT).key_up(Keys.SHIFT).perform()
+
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//button[@title='Advance filter']"))).click()
-        time.sleep(1)
+        time.sleep(2)
         actions.key_down(Keys.ALT).send_keys('a').key_up(Keys.ALT).perform()
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Apply']"))).click()
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()=' Search ']"))).click()
-        time.sleep(4)
+        time.sleep(10)
 
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[@title='Excel']"))).click()
 
@@ -89,5 +91,3 @@ def getStockValuation():
     finally:
         log("Closing browser...")
         driver.quit()
-
-getStockValuation()

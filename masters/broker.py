@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import WebDriverWait, Select
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 
@@ -24,7 +24,7 @@ def wait_for_download(directory, extension=".xlsx", timeout=30):
 # Load environment variables
 load_dotenv()
 
-def getBroker():
+def getBrokerData():
     download_path = os.path.join(os.getcwd(), "Kolkata", "Frono_Broker_Report")
     os.makedirs(download_path, exist_ok=True)
 
@@ -35,13 +35,13 @@ def getBroker():
         raise EnvironmentError("FRONO_USERNAME or FRONO_PASSWORD missing.")
 
     options = webdriver.ChromeOptions()
-    # options.add_argument("--headless")
-    # options.add_argument("--no-sandbox")
-    # options.add_argument("--disable-dev-shm-usage")
-    # options.add_argument(f"--window-size=1920,1080")
-    # options.add_argument(f"--disable-gpu")
-    # options.add_argument(f"--disable-software-rasterizer")
-    # options.add_argument(f"--remote-debugging-port=9222")
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument(f"--window-size=1920,1080")
+    options.add_argument(f"--disable-gpu")
+    options.add_argument(f"--disable-software-rasterizer")
+    options.add_argument(f"--remote-debugging-port=9222")
     prefs = {
         "download.default_directory": download_path,
         "download.prompt_for_download": False,
@@ -61,27 +61,22 @@ def getBroker():
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "userName"))).send_keys(FRONO_USERNAME)
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "password"))).send_keys(FRONO_PASSWORD + Keys.RETURN)
 
-        log("Navigating to 'Master - Customer' page...")
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//a[@title='Master']"))).click()
-        # WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "pn_id_178_1_0"))).click()
-        # WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.LINK_TEXT, "Stock Valuation"))).click()
+        log("Navigating to 'Master - Broker' page...")
+
+        time.sleep(1)
+        element = driver.find_element(By.CSS_SELECTOR, 'a[title="Broker"][href*="/broker/view"]')
+        driver.execute_script("arguments[0].click();", element)
+        
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "globalSearch"))).click()
+        actions.send_keys(Keys.TAB + Keys.TAB + Keys.TAB + Keys.TAB + Keys.TAB + Keys.TAB + Keys.TAB + Keys.SPACE).perform()
+        
+        time.sleep(1)
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[@title='Excel']"))).click()
+        
         time.sleep(5)
-
-        # dropdown = Select(WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "basicSelect"))))
-        # dropdown.select_by_index(0)
-
-        # WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//button[@title='Advance filter']"))).click()
-        # time.sleep(1)
-        # actions.key_down(Keys.ALT).send_keys('a').key_up(Keys.ALT).perform()
-        # WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Apply']"))).click()
-        # WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()=' Search ']"))).click()
-        # time.sleep(4)
-
-        # WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[@title='Excel']"))).click()
-
-        # downloaded_file = wait_for_download(download_path)
-        # log(f"✅ Downloaded file saved as: {downloaded_file}")
-        # return f"Success: {downloaded_file}"
+        downloaded_file = wait_for_download(download_path)
+        log(f"✅ Downloaded file saved as: {downloaded_file}")
+        return f"Success: {downloaded_file}"
 
     except Exception as e:
         log(f"❌ Error during scraping: {e}")
@@ -90,5 +85,3 @@ def getBroker():
     finally:
         log("Closing browser...")
         driver.quit()
-
-getBroker()

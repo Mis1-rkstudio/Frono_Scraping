@@ -35,13 +35,13 @@ def getSalesOrderDetails():
         raise EnvironmentError("FRONO_USERNAME or FRONO_PASSWORD missing.")
 
     options = webdriver.ChromeOptions()
-    # options.add_argument("--headless")
-    # options.add_argument("--no-sandbox")
-    # options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
     options.add_argument(f"--window-size=1920,1080")
-    # options.add_argument(f"--disable-gpu")
-    # options.add_argument(f"--disable-software-rasterizer")
-    # options.add_argument(f"--remote-debugging-port=9222")
+    options.add_argument(f"--disable-gpu")
+    options.add_argument(f"--disable-software-rasterizer")
+    options.add_argument(f"--remote-debugging-port=9222")
     prefs = {
         "download.default_directory": download_path,
         "download.prompt_for_download": False,
@@ -65,18 +65,23 @@ def getSalesOrderDetails():
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "pn_id_3_7_header"))).click()
         log("Navigating to 'Customer wise Item' report...")
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.LINK_TEXT, "Customer Wise Details Report"))).click()
-        time.sleep(1)
 
-        # Change this block ----------------------------------------------------------------------------------------- 
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//*[@dropdown]"))).click()
-        # ------------------------------------------------------------------------------------------------------------
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//button[@title='Advance filter']"))).click()
-        time.sleep(1)
+        time.sleep(3)
         actions.key_down(Keys.ALT).send_keys('a').key_up(Keys.ALT).perform()
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Apply']"))).click()
-        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()=' Search ']"))).click()
-        time.sleep(4)
 
+        # Change this block ----------------------------------------------------------------------------------------- 
+        time.sleep(1)
+        actions.send_keys(Keys.TAB + Keys.TAB + Keys.TAB + Keys.TAB).perform()
+        driver.execute_script("arguments[0].click();", driver.switch_to.active_element)
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//a[text()='Till Date']"))).click()
+        # ------------------------------------------------------------------------------------------------------------
+
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()=' Search ']"))).click()
+        time.sleep(10)
+
+        log("Exporting to Excel...")
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[@title='Excel']"))).click()
 
         downloaded_file = wait_for_download(download_path)
@@ -90,5 +95,3 @@ def getSalesOrderDetails():
     finally:
         log("Closing browser...")
         driver.quit()
-
-getSalesOrderDetails()

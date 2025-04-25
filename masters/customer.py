@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
 
 def log(msg):
     print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {msg}", flush=True)
@@ -23,7 +24,7 @@ def wait_for_download(directory, extension=".xlsx", timeout=30):
 # Load environment variables
 load_dotenv()
 
-def getCustomer():
+def getCustomerData():
     download_path = os.path.join(os.getcwd(), "Kolkata", "Frono_Customer_Report")
     os.makedirs(download_path, exist_ok=True)
 
@@ -34,13 +35,13 @@ def getCustomer():
         raise EnvironmentError("FRONO_USERNAME or FRONO_PASSWORD missing.")
 
     options = webdriver.ChromeOptions()
-    # options.add_argument("--headless")
-    # options.add_argument("--no-sandbox")
-    # options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
     options.add_argument(f"--window-size=1920,1080")
-    # options.add_argument(f"--disable-gpu")
-    # options.add_argument(f"--disable-software-rasterizer")
-    # options.add_argument(f"--remote-debugging-port=9222")
+    options.add_argument(f"--disable-gpu")
+    options.add_argument(f"--disable-software-rasterizer")
+    options.add_argument(f"--remote-debugging-port=9222")
     prefs = {
         "download.default_directory": download_path,
         "download.prompt_for_download": False,
@@ -50,6 +51,7 @@ def getCustomer():
     options.add_experimental_option("prefs", prefs)
 
     driver = webdriver.Chrome(options=options)
+    actions = ActionChains(driver)
 
     try:
         log("Opening FronoCloud login page...")
@@ -60,15 +62,21 @@ def getCustomer():
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "password"))).send_keys(FRONO_PASSWORD + Keys.RETURN)
 
         log("Navigating to 'Master - Customer' page...")
-        driver.get("https://fronocloud.com/contact/customer/view")
 
-        driver.find_element(By.XPATH, "//div[contains(@class, 'p-checkbox-box')]").click()
-        time.sleep(2)
-        # WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[@title='Excel']"))).click()
+        time.sleep(1)
+        element = driver.find_element(By.CSS_SELECTOR, 'a[title="Customer"][href*="/contact/customer/view"]')
+        driver.execute_script("arguments[0].click();", element)
         
-        # downloaded_file = wait_for_download(download_path)
-        # log(f"✅ Downloaded file saved as: {downloaded_file}")
-        # return f"Success: {downloaded_file}"
+        time.sleep(3)
+        actions.send_keys(Keys.TAB + Keys.TAB + Keys.TAB + Keys.TAB + Keys.TAB + Keys.TAB + Keys.TAB + Keys.TAB + Keys.TAB + Keys.SPACE).perform()
+        
+        time.sleep(2)
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[@title='Excel']"))).click()
+        
+        time.sleep(5)
+        downloaded_file = wait_for_download(download_path)
+        log(f"✅ Downloaded file saved as: {downloaded_file}")
+        return f"Success: {downloaded_file}"
 
     except Exception as e:
         log(f"❌ Error during scraping: {e}")
@@ -77,5 +85,3 @@ def getCustomer():
     finally:
         log("Closing browser...")
         driver.quit()
-
-getCustomer()

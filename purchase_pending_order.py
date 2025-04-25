@@ -24,8 +24,8 @@ def wait_for_download(directory, extension=".xlsx", timeout=30):
 # Load environment variables
 load_dotenv()
 
-def getSalesPendingOrder():
-    download_path = os.path.join(os.getcwd(), "Kolkata", "Frono_Sales_Pending_Order_Report")
+def getPurchasePendingOrder():
+    download_path = os.path.join(os.getcwd(), "Kolkata", "Frono_Purchase_Pending_Order_Report")
     os.makedirs(download_path, exist_ok=True)
 
     FRONO_USERNAME = os.getenv("FRONO_USERNAME")
@@ -61,30 +61,38 @@ def getSalesPendingOrder():
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "userName"))).send_keys(FRONO_USERNAME)
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "password"))).send_keys(FRONO_PASSWORD + Keys.RETURN)
 
+        time.sleep(2)
         log("Navigating to 'Reports' page...")
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "pn_id_3_7_header"))).click()
         log("Navigating to 'Customer wise Item' report...")
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.LINK_TEXT, "Customer Wise Item Details"))).click()
-        time.sleep(1)
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.LINK_TEXT, "Pending Purchase Order"))).click()
 
-        log("Opening advanced filter...")
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//button[@title='Advance filter']"))).click()
-        time.sleep(2)
-        actions.key_down(Keys.ALT).send_keys('a').key_up(Keys.ALT).perform()
-        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Apply']"))).click()
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="vendorWise-tab-justified"]'))).click()
 
-        # Change this block ----------------------------------------------------------------------------------------- 
+
+        # Focus on the Advance Filter button
         time.sleep(2)
-        actions.send_keys(Keys.TAB + Keys.TAB + Keys.TAB).perform()
-        driver.execute_script("arguments[0].click();", driver.switch_to.active_element)
-        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//a[text()='This Financial Year']"))).click()
-        # ------------------------------------------------------------------------------------------------------------
+        advance_filter_btn = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//button[@id="08"]')))
+        driver.execute_script("arguments[0].focus();", advance_filter_btn)
         
+        # Change this block ----------------------------------------------------------------------------------------- 
+        time.sleep(1)
+        actions.send_keys(Keys.TAB).send_keys(Keys.TAB).send_keys(Keys.TAB).perform()
+        driver.execute_script("arguments[0].click();", driver.switch_to.active_element)
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//a[text()='Previous Financial Year']"))).click()
+        # # ------------------------------------------------------------------------------------------------------------
+
+        driver.execute_script("arguments[0].focus();", advance_filter_btn)
+        actions.key_down(Keys.SHIFT).send_keys(Keys.TAB).key_up(Keys.SHIFT).send_keys(Keys.SPACE).perform()
+        time.sleep(1)
+        actions.key_down(Keys.SHIFT).send_keys(Keys.TAB).key_up(Keys.SHIFT).send_keys(Keys.SPACE).perform()
+        actions.send_keys(Keys.ESCAPE).perform()
+
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()=' Search ']"))).click()
         time.sleep(10)
 
-        log("Exporting to Excel...")
-        actions.send_keys(Keys.TAB + Keys.TAB + Keys.TAB + Keys.TAB + Keys.TAB + Keys.TAB + Keys.TAB + Keys.TAB + Keys.SPACE).perform()
+        # log("Exporting to Excel...")
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[@title='Excel']"))).click()
 
         downloaded_file = wait_for_download(download_path)
         log(f"✅ Downloaded file saved as: {downloaded_file}")

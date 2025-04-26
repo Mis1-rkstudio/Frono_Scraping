@@ -210,8 +210,6 @@ def modify_sales_invoice_dataframe(df):
     df = df.astype(str)
     df.reset_index(drop=True, inplace=True)
 
-
-
     return df
 
 def modify_pending_po(df):
@@ -351,7 +349,7 @@ def modify_customer_dataframe(df):
     
     return df_extracted
 
-def clean_gr_report(df):
+def modify_gr_report(df):
     print("🛠 Modifying GR Report...")
     
 
@@ -397,6 +395,29 @@ def clean_gr_report(df):
     df.reset_index(drop=True, inplace=True)
     
     return df
+
+def modify_purchase_invoice_dataframe(df):
+    print("🛠 Modifying Purchase Invoice Report...")
+
+    # ✅ Replace spaces and "/" in column names with underscores
+    df.columns = df.columns.str.replace(" ", "_").str.replace("/", "_")
+
+    # ✅ Drop columns where the header is blank
+    df = df.loc[:, df.columns.str.strip() != ""]
+
+    # Clean rows where 'Date' is NaN or empty string
+    if "Date" in df.columns:
+        # Drop rows where 'Date' is either NaN or empty string
+        df = df[~(df['Date'].isna() | (df['Date'].astype(str).str.strip() == ''))]
+    else:
+        raise ValueError("The 'Date' column does not exist in the provided file.")
+
+    # ✅ Convert all data to string
+    df = df.astype(str)
+    df.reset_index(drop=True, inplace=True)
+
+    return df
+
 
 def robust_date_parse(x, fallback_date=None):
     """

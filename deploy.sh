@@ -19,5 +19,4 @@ gcloud run deploy "$SERVICE_NAME" \
   --region "$REGION" \
   --allow-unauthenticated \
   --memory 1Gi \
-  --timeout 900 \
-  --service-account mis1-178@round-kit-450201-r9.iam.gserviceaccount.com
+  --timeout 900

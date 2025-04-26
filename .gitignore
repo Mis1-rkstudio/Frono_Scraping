@@ -15,5 +15,7 @@ venv/
 .vscode/
 .idea/
 
+my-service-account.json
+
 # Ignore local downloads folder if any
 Kolkata/

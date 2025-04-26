@@ -34,6 +34,7 @@ jobs:
             --memory 1Gi \
             --timeout 900 \
             --allow-unauthenticated
+            --service-account mis1-178@round-kit-450201-r9.iam.gserviceaccount.com
 
       - name: 🩺 Test /health endpoint
         run: |

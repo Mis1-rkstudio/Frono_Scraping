@@ -1,5 +1,6 @@
 selenium>=4.0.0
 pandas
+pandas-gbq
 openpyxl
 google-cloud-bigquery
 Flask

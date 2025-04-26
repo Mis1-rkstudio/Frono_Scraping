@@ -1,6 +1,19 @@
+# Ignore Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore virtual environments
+venv/
 .env
-.env.local
 
-.dockerignore
+# Ignore development files and folders
+*.log
+*.sqlite
+.DS_Store
+.vscode/
+.idea/
 
+# Ignore local downloads folder if any
 Kolkata/

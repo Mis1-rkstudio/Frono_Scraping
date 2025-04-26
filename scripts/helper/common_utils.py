@@ -1,10 +1,10 @@
 import os
 import time
-# from dotenv import load_dotenv
 from google.cloud import bigquery
 import pandas as pd
 
-# load_dotenv()
+
+
 
 def log(msg):
     print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {msg}", flush=True)
@@ -27,8 +27,6 @@ def ensure_download_path(folder_name):
 def load_credentials():
     username = os.environ.get("FRONO_USERNAME")           # For Production
     password = os.environ.get("FRONO_PASSWORD")           # For Production
-    # username = os.getenv("FRONO_USERNAME")                  # For Development
-    # password = os.getenv("FRONO_PASSWORD")                  # For Development
     if not username or not password:
         raise EnvironmentError("FRONO_USERNAME or FRONO_PASSWORD is missing.")
     return username, password
@@ -46,7 +44,7 @@ def load_dataframe(file_path):
 
     return df
 
-def upload_to_bigquery(df, table_name, dataset_id="frono_2025", overwrite=True):
+def upload_to_bigquery(df, table_name, dataset_id="frono_2025"):
     """
     Loads a local file using `load_dataframe` and uploads it to BigQuery.
     Creates the dataset if it doesn't exist.
@@ -57,6 +55,7 @@ def upload_to_bigquery(df, table_name, dataset_id="frono_2025", overwrite=True):
         dataset_id (str): BigQuery dataset name (default: 'frono_2025').
         overwrite (bool): If True, overwrites the existing table.
     """
+    log(f"Creating BigQuery client...")
     client = bigquery.Client()
     project_id = client.project
     table_id = f"{project_id}.{dataset_id}.{table_name}"

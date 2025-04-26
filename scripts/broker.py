@@ -42,7 +42,7 @@ def getBroker():
         log("Modifying DataFrame...")
         df = modify_broker_dataframe(df)
 
-        # Upload to BigQuery
+        log("Uploading to BigQuery...")
         upload_to_bigquery(df, dataset_id="frono", table_name="broker")
 
         # Delete file

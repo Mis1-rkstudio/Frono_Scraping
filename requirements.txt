@@ -1,9 +1,9 @@
 selenium>=4.0.0
 pandas
 pandas-gbq
-openpyxl
-google-cloud-bigquery
 Flask
-pytz
+google-cloud-bigquery
+openpyxl
 pyarrow
+pytz
 python-dotenv   # ⬅️ New for local env loading

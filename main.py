@@ -27,8 +27,8 @@ def home():
     <h2>🛠️ Frono Automation Service</h2>
     <p>Welcome! This Cloud Run service powers the automated scraping, file processing, and BigQuery uploads for FronoCloud reports.</p>
     <ul>
-        <li>✅ <a href="/health"><b>/health</b></a> → Health check endpoint</li>
-        <li>🚀 <a href="/run"><b>/run</b></a> → Trigger scraping and data upload process</li>
+        <li>✅ <a href="/health"><b>/health</b></a> → Health check endpoint </li>
+        <li>🚀 <a href="/run"><b>/run</b></a> → Trigger scraping and data upload process </li>
     </ul>
     <hr>
     <p><b>🕒 Last Scraper Run (IST):</b> {last_run}</p>

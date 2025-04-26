@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 
 def create_driver(download_path):
     options = webdriver.ChromeOptions()
@@ -8,7 +9,8 @@ def create_driver(download_path):
     options.add_argument("--window-size=1920,1080")
     options.add_argument("--disable-gpu")
     options.add_argument("--disable-software-rasterizer")
-    options.add_argument("--remote-debugging-port=9222")
+    options.binary_location = "/usr/bin/chromium"
+
     prefs = {
         "download.default_directory": download_path,
         "download.prompt_for_download": False,
@@ -16,4 +18,7 @@ def create_driver(download_path):
         "safebrowsing.enabled": True
     }
     options.add_experimental_option("prefs", prefs)
-    return webdriver.Chrome(options=options)
+
+    # Use Service object to pass chromedriver path
+    service = Service("/usr/bin/chromedriver")
+    return webdriver.Chrome(service=service, options=options)

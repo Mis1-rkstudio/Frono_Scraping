@@ -6,8 +6,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 
+from scripts.df_cleaners.cleaner import clean_gr_report
 from scripts.helper.browser_manager import create_driver
-from scripts.helper.common_utils import ensure_download_path, load_credentials, log, upload_to_bigquery, wait_for_download
+from scripts.helper.common_utils import ensure_download_path, load_credentials, load_dataframe, log, upload_to_bigquery, wait_for_download
 from scripts.helper.fronocloud_login import login
 
 
@@ -46,6 +47,11 @@ def getGoodsReturn():
 
         downloaded_file = wait_for_download(download_path)
         log(f"✅ Downloaded file saved as: {downloaded_file}")
+
+        df = load_dataframe(downloaded_file)
+
+        log("Modifying DataFrame...")
+        df = clean_gr_report(df)
 
         # Upload to BigQuery
         upload_to_bigquery(downloaded_file, table_name="goods_return")

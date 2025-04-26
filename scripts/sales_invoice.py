@@ -48,7 +48,7 @@ def getSalesInvoice():
         df = modify_sales_invoice_dataframe(df)
 
         # Upload to BigQuery
-        upload_to_bigquery(downloaded_file, table_name="sales_invoice")
+        upload_to_bigquery(df, table_name="sales_invoice")
 
         # Delete file
         os.remove(downloaded_file)

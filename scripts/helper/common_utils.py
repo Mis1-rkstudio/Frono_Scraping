@@ -1,14 +1,26 @@
 import os
 import time
-from google.cloud import bigquery
 import pandas as pd
+from google.cloud import bigquery
 
 
 
+# 🌍 Try loading .env if available (for local development)
+if os.path.exists(".env"):
+    from dotenv import load_dotenv
+    load_dotenv()
+    print("✅ Loaded .env file.")
 
+# 🔐 Local JSON auth (only if GOOGLE_APPLICATION_CREDENTIALS not already set)
+if not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"):
+    if os.path.exists("my-service-account.json"):
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "my-service-account.json"
+        print("✅ Set GOOGLE_APPLICATION_CREDENTIALS for local run.")
+
+        
 def log(msg):
     print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {msg}", flush=True)
-
+    
 def wait_for_download(directory, extension=".xlsx", timeout=30):
     log("Waiting for download to complete...")
     end_time = time.time() + timeout
@@ -25,12 +37,11 @@ def ensure_download_path(folder_name):
     return path
 
 def load_credentials():
-    username = os.environ.get("FRONO_USERNAME")           # For Production
-    password = os.environ.get("FRONO_PASSWORD")           # For Production
+    username = os.environ.get("FRONO_USERNAME")
+    password = os.environ.get("FRONO_PASSWORD")
     if not username or not password:
         raise EnvironmentError("FRONO_USERNAME or FRONO_PASSWORD is missing.")
     return username, password
-
 
 def load_dataframe(file_path):
     print(f"📂 Loading file: {file_path}")
@@ -44,48 +55,33 @@ def load_dataframe(file_path):
 
     return df
 
-def upload_to_bigquery(df, table_name, dataset_id="round-kit-450201-r9.frono_2025"):
+def upload_to_bigquery(df, table_name, dataset_id="frono_2025"):
     """
-    Loads a local file using `load_dataframe` and uploads it to BigQuery.
-    Creates the dataset if it doesn't exist.
-
-    Args:
-        file_path (str): Full local path to the Excel or CSV file.
-        table_name (str): Target BigQuery table name.
-        dataset_id (str): BigQuery dataset name (default: 'frono_2025').
-        overwrite (bool): If True, overwrites the existing table.
+    Uploads dataframe to BigQuery table.
     """
     log(f"Creating BigQuery client...")
     client = bigquery.Client()
     project_id = client.project
     table_id = f"{project_id}.{dataset_id}.{table_name}"
 
-    # Ensure dataset exists
     dataset_ref = bigquery.Dataset(f"{project_id}.{dataset_id}")
     try:
         client.get_dataset(dataset_ref)
         log(f"📦 Dataset exists: {dataset_id}")
-    except Exception as e:
+    except Exception:
         log(f"📦 Dataset not found: {dataset_id}. Creating...")
         dataset = bigquery.Dataset(dataset_ref)
         dataset.location = "asia-south1"
         client.create_dataset(dataset)
         log(f"✅ Created dataset: {dataset_id}")
 
-    # Upload configuration
     write_mode = bigquery.WriteDisposition.WRITE_TRUNCATE
     job_config = bigquery.LoadJobConfig(
         write_disposition=write_mode,
         autodetect=True
     )
 
-    # Upload
     log(f"📤 Uploading {df.shape[0]} rows to table: {table_id}")
-    try:
-        job = client.load_table_from_dataframe(df, table_id, job_config=job_config)
-        job.result()
-        log(f"✅ Upload complete: {table_id}")
-    except Exception as e:
-        log(f"❌ Failed to upload to {table_id}: {e}")
-        raise
-
+    job = client.load_table_from_dataframe(df, table_id, job_config=job_config)
+    job.result()
+    log(f"✅ Upload complete: {table_id}")

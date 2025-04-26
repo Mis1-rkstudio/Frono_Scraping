@@ -51,7 +51,7 @@ def getSalesOrderDetails():
         df = modify_sales_order_dataframe(df)
 
         # Upload to BigQuery
-        upload_to_bigquery(downloaded_file, dataset_id="frono", table_name="sales_order_details")
+        upload_to_bigquery(df, dataset_id="frono", table_name="sales_order_details")
 
         # Delete file
         os.remove(downloaded_file)

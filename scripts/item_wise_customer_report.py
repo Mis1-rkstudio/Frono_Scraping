@@ -51,7 +51,7 @@ def getItemWiseSales():
         df = (df)
 
         # Upload to BigQuery
-        upload_to_bigquery(downloaded_file, table_name="item_wise_customer")
+        upload_to_bigquery(df, table_name="item_wise_customer")
 
         # Delete file
         os.remove(downloaded_file)

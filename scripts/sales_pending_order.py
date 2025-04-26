@@ -52,7 +52,7 @@ def getSalesPendingOrder():
         df = modify_order_dataframe(df)
 
         # Upload to BigQuery
-        upload_to_bigquery(downloaded_file, table_name="sales_pending")
+        upload_to_bigquery(df, table_name="sales_pending")
 
         # Delete file
         os.remove(downloaded_file)

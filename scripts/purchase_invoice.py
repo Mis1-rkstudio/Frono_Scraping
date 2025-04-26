@@ -45,7 +45,7 @@ def getPurchaseInvoice():
         df = (df)
 
         # Upload to BigQuery
-        upload_to_bigquery(downloaded_file, table_name="purchase_invoice")
+        upload_to_bigquery(df, table_name="purchase_invoice")
 
         # Delete file
         os.remove(downloaded_file)

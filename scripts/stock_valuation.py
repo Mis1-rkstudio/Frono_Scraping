@@ -50,7 +50,7 @@ def getStockValuation():
         df = modify_valuation_dataframe(df)
 
         # Upload to BigQuery
-        upload_to_bigquery(downloaded_file, table_name="stock_valuation")
+        upload_to_bigquery(df, table_name="stock_valuation")
 
         # Delete file
         os.remove(downloaded_file)

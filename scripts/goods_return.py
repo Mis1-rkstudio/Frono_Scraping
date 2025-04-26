@@ -54,7 +54,7 @@ def getGoodsReturn():
         df = clean_gr_report(df)
 
         # Upload to BigQuery
-        upload_to_bigquery(downloaded_file, table_name="goods_return")
+        upload_to_bigquery(df, table_name="goods_return")
 
         # Delete file
         os.remove(downloaded_file)

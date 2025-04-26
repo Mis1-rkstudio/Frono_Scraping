@@ -56,7 +56,7 @@ def getStock():
         df = modify_stock_dataframe(df)
 
         # Upload to BigQuery
-        upload_to_bigquery(downloaded_file, dataset_id="frono", table_name="stock")
+        upload_to_bigquery(df, dataset_id="frono", table_name="stock")
 
         # Delete file
         os.remove(downloaded_file)

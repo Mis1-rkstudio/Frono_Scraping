@@ -12,13 +12,6 @@ gcloud builds submit --tag "$IMAGE_NAME"
 
 # === STEP 2: Deploy to Cloud Run (env vars already set in Cloud UI) ===
 echo "🚀 Deploying to Cloud Run..."
-# gcloud run deploy "$SERVICE_NAME" \
-#   --image "$IMAGE_NAME" \
-#   --platform managed \
-#   --region "$REGION" \
-#   --allow-unauthenticated \
-#   --memory 1Gi \
-#   --timeout 900
 
 gcloud run deploy "$SERVICE_NAME" \
   --image "$IMAGE_NAME" \

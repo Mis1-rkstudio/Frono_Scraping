@@ -57,7 +57,7 @@ def getPurchasePendingOrder():
         df = modify_pending_po(df)
 
         # Upload to BigQuery
-        upload_to_bigquery(downloaded_file, table_name="purchase_pending")
+        upload_to_bigquery(df, table_name="purchase_pending")
 
         # Delete file
         os.remove(downloaded_file)

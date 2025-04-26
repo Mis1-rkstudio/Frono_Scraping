@@ -25,7 +25,7 @@ ENV PATH=$PATH:/usr/bin/chromedriver
 # 📂 Set working directory
 WORKDIR /app
 
-# 📦 Install Python dependencies
+# Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 

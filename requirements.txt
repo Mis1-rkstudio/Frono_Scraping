@@ -4,3 +4,5 @@ openpyxl
 google-cloud-bigquery
 Flask
 pytz
+pyarrorw
+python-dotenv   # ⬅️ New for local env loading

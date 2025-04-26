@@ -44,7 +44,7 @@ def load_dataframe(file_path):
 
     return df
 
-def upload_to_bigquery(df, table_name, dataset_id="frono_2025"):
+def upload_to_bigquery(df, table_name, dataset_id="round-kit-450201-r9.frono_2025"):
     """
     Loads a local file using `load_dataframe` and uploads it to BigQuery.
     Creates the dataset if it doesn't exist.

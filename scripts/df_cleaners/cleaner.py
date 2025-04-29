@@ -421,7 +421,7 @@ def modify_account_payable_dataframe(df):
     df = df.loc[:, df.columns.str.strip() != ""]
 
     # ✅ Drop columns whose header contains '--Select--Udyam'
-    df = df.loc[:, ~df.columns.str.contains('--Select--Udyam')]
+    df = df.loc[:, ~df.columns.str.contains('__Select__Udyam')]
 
     # ✅ Drop the first column
     df = df.iloc[:, 1:]

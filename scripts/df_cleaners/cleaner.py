@@ -645,3 +645,40 @@ def modify_jobcard_sample_dataframe(df):
     df.reset_index(drop=True, inplace=True)
     return df
 
+def modify_sample_invoice_dataframe(df):
+    # Load your raw data
+    # Example: df = pd.read_excel('yourfile.xlsx')
+    df = pd.read_clipboard()  # For quick testing if you copied the data
+
+    # Create an empty list to hold customer names
+    customer_names = []
+
+    # Variable to track the current customer name
+    current_customer = None
+
+    # Loop through each row to detect and assign customer name
+    for idx, row in df.iterrows():
+        # If only the first column has value and others are empty
+        if pd.notna(row.iloc[0]) and row.iloc[1:].isnull().all():
+            current_customer = row.iloc[0]
+        customer_names.append(current_customer)
+
+    # Add the new "Customer Name" column
+    df['Customer Name'] = customer_names
+
+    # Optional: Remove the rows which are only customer titles (if you don't want them in final output)
+    df = df[~((df.iloc[:, 1:].isnull()).all(axis=1))]
+    df = df[df.iloc[:, 0] != 'Total']
+
+    # Drop the unwanted 'Unnamed: 1' column if it exists
+    if 'Unnamed: 1' in df.columns:
+        df = df.drop(columns=['Unnamed: 1'])
+
+    # Reorder columns if needed (put Customer Name first)
+    cols = ['Customer Name'] + [col for col in df.columns if col != 'Customer Name']
+    df = df[cols]
+
+    # Save to Excel/CSV
+    # df.to_excel('output.xlsx', index=False)
+
+    print(df)

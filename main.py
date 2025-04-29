@@ -1,5 +1,4 @@
 from flask import Flask
-import threading
 import datetime
 import pytz
 import scripts.main as scraper  # Your scraping function
@@ -43,7 +42,6 @@ def health_check():
 def run_scraper():
     global last_run_time
     last_run_time = datetime.datetime.now(pytz.utc)  # Save time in UTC first
-    # threading.Thread(target=scraper.run_all_reports).start()
     scraper.run_all_reports()
     return "🚀 Scraper started!", 200
 

@@ -15,18 +15,18 @@ from scripts.stock_valuation import getStockValuation
 
 def run_all_reports():
     results = {
-        # "Purchase Pending Order": getPurchasePendingOrder(),
-        # "Sales Invoice": getSalesInvoice(),
-        # "Sales Order Details": getSalesOrderDetails(),
-        # "Sales Pending Order": getSalesPendingOrder(),
-        # "Stock": getStock(),
-        # "Broker": getBroker(),
-        # "Customer": getCustomer(),
-        # "Goods Return": getGoodsReturn(),
-        # "Item Wise Customer": getItemWiseSales(),
-        # "Purchase Invoice": getPurchaseInvoice(),
-        # "Stock Valuation": getStockValuation(),
-        # "Account Payable": getAccountPayable(),
+        "Purchase Pending Order": getPurchasePendingOrder(),
+        "Sales Invoice": getSalesInvoice(),
+        "Sales Order Details": getSalesOrderDetails(),
+        "Sales Pending Order": getSalesPendingOrder(),
+        "Stock": getStock(),
+        "Broker": getBroker(),
+        "Customer": getCustomer(),
+        "Goods Return": getGoodsReturn(),
+        "Item Wise Customer": getItemWiseSales(),
+        "Purchase Invoice": getPurchaseInvoice(),
+        "Stock Valuation": getStockValuation(),
+        "Account Payable": getAccountPayable(),
         "Account Receivable": getAccountReceivable(),
     }
 

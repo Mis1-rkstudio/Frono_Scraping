@@ -84,6 +84,9 @@ def clean_filename(file_name):
 def modify_sales_report_dataframe(df):
     print("🛠 Modifying Sales Report...")
     
+    # ✅ Replace spaces and "/" in column names with underscores
+    df = standardize_column_names(df)
+
     # Drop columns where the first row has blanks
     df = df.dropna(axis=1, how='all')
 
@@ -144,13 +147,7 @@ def modify_order_dataframe(df):
     print("🛠 Modifying Sales Pending Order Dataframe...")
 
     # ✅ Standardize column names: Remove spaces, slashes, and make lowercase
-    df.columns = (
-        df.columns
-        .str.strip()  # Remove leading/trailing spaces
-        .str.replace(" ", "_")  # Replace spaces with underscores
-        .str.replace("/", "_")  # Replace slashes with underscores
-        .str.lower()  # Convert to lowercase for consistency
-    )
+    df = standardize_column_names(df)
 
     
 
@@ -197,7 +194,7 @@ def modify_sales_invoice_dataframe(df):
     print("🛠 Modifying Sales Invoice Data...")
 
     # ✅ Replace spaces and "/" in column names with underscores
-    df.columns = df.columns.str.replace(" ", "_").str.replace("/", "_")
+    df = standardize_column_names(df)
 
     # ✅ Drop columns where the header is blank
     df = df.loc[:, df.columns.str.strip() != ""]
@@ -215,6 +212,8 @@ def modify_sales_invoice_dataframe(df):
 def modify_pending_po(df):
     print("🛠 Modifying Pending Purchase Order Report...")
     
+    df = standardize_column_names(df)
+
     # Rename the first column to "Customer Name"
     df.rename(columns={df.columns[0]: "Vendor Name"}, inplace=True)
     
@@ -233,14 +232,6 @@ def modify_pending_po(df):
     
     # Drop rows where "Item Name" is blank
     df = df.dropna(subset=["Item Name"])
-    
-    df.columns = (
-        df.columns
-        .str.strip()  # Remove leading/trailing spaces
-        .str.replace(" ", "_")  # Replace spaces with underscores
-        .str.replace("/", "_")  # Replace slashes with underscores
-        .str.lower()  # Convert to lowercase for consistency
-    )
 
     # Convert all data to string
     # df = df.astype(str)
@@ -250,8 +241,9 @@ def modify_pending_po(df):
 
 def modify_valuation_dataframe(df):
     print("🛠 Modifying Stock Valuation Report...")
+
     # Replace spaces and "/" in column names with underscores.
-    df.columns = df.columns.str.replace(" ", "_").str.replace("/", "_")
+    df = standardize_column_names(df)
 
 
     # Drop the last row
@@ -264,6 +256,7 @@ def modify_valuation_dataframe(df):
 
 def modify_sales_order_dataframe(df):
     print("🛠 Modifying Sales Order Report...")
+
     # Replace spaces and "/" in column names with underscores.
     df.columns = df.columns.str.replace(" ", "_").str.replace("/", "_").str.replace("#", "column_n").str.replace("[", "").str.replace("]", "")
 
@@ -417,6 +410,80 @@ def modify_purchase_invoice_dataframe(df):
     df.reset_index(drop=True, inplace=True)
 
     return df
+
+def modify_account_payable_dataframe(df):
+    print("🛠 Modifying Account Payable Report...")
+
+    # ✅ Replace spaces and "/" in column names with underscores
+    df = standardize_column_names(df)
+
+    # ✅ Drop columns where the header is blank
+    df = df.loc[:, df.columns.str.strip() != ""]
+
+    # ✅ Drop columns whose header contains '--Select--Udyam'
+    df = df.loc[:, ~df.columns.str.contains('--Select--Udyam')]
+
+    # ✅ Drop the first column
+    df = df.iloc[:, 1:]
+
+    if "Vendor_Name" in df.columns:
+        df = df[~(df['Vendor_Name'].isna() | (df['Vendor_Name'].astype(str).str.strip() == ''))]
+    else:
+        raise ValueError("The 'Vendor Name' column does not exist in the provided file.")
+
+    # ✅ Convert all data to string
+    df = df.astype(str)
+
+    # ✅ Reset index
+    df.reset_index(drop=True, inplace=True)
+
+    return df
+
+def modify_account_receivable_dataframe(df):
+    print("🛠 Modifying Account Receivable Report...")
+
+    # ✅ Standardize column names (replace spaces, / etc.)
+    df = standardize_column_names(df)
+
+    # Create an empty list to hold customer names
+    customer_names = []
+    current_customer = None
+
+    # Loop through each row to detect and assign customer name
+    for idx, row in df.iterrows():
+        if pd.notna(row.iloc[0]) and row.iloc[1:].isnull().all():
+            current_customer = row.iloc[0]
+        customer_names.append(current_customer)
+
+    # Add the new "customer_name" column
+    df['customer_name'] = customer_names
+
+    # Remove rows which are only customer titles or 'Total'
+    df = df[~((df.iloc[:, 1:].isnull()).all(axis=1))]
+    df = df[df.iloc[:, 0] != 'Total']
+
+    # Drop unwanted columns
+    if 'Unnamed:_1' in df.columns:
+        df = df.drop(columns=['Unnamed:_1'])
+
+    # Drop rows where Total_Amt is blank or null
+    if 'Total_Amt' in df.columns:
+        df = df[df['Total_Amt'].notna()]
+
+    # Drop rows where Date == "Grand Total"
+    if 'Date' in df.columns:
+        df = df[df['Date'] != 'Grand Total']
+
+    # Reorder columns (customer_name first)
+    cols = ['customer_name'] + [col for col in df.columns if col != 'customer_name']
+    df = df[cols]
+    
+    # Clean customer_name to remove anything starting from '['
+    df['customer_name'] = df['customer_name'].apply(lambda x: re.split(r'\[', str(x))[0].strip())
+
+
+    return df
+
 
 
 def robust_date_parse(x, fallback_date=None):

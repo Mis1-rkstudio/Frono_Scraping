@@ -24,9 +24,9 @@ def run_all_reports():
         # "Customer": getCustomer(),
         # "Goods Return": getGoodsReturn(),
         # "Item Wise Customer": getItemWiseSales(),
-        "Purchase Invoice": getPurchaseInvoice(),
-        "Stock Valuation": getStockValuation(),
-        "Account Payable": getAccountPayable(),
+        # "Purchase Invoice": getPurchaseInvoice(),
+        # "Stock Valuation": getStockValuation(),
+        # "Account Payable": getAccountPayable(),
         "Account Receivable": getAccountReceivable(),
     }
 

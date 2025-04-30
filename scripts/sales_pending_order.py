@@ -55,8 +55,8 @@ def getSalesPendingOrder():
         upload_to_bigquery(df, table_name="sales_pending")
 
         # # Delete file
-        # os.remove(downloaded_file)
-        # log(f"🗑️ Deleted local file: {downloaded_file}")
+        os.remove(downloaded_file)
+        log(f"🗑️ Deleted local file: {downloaded_file}")
 
         return f"Success: {downloaded_file}"
 

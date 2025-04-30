@@ -52,7 +52,7 @@ def getAccountReceivable():
 
         log("Modifying DataFrame...")
         df = modify_account_receivable_dataframe(df)
-        print(df.head())
+
         # Upload to BigQuery
         upload_to_bigquery(df, table_name="account_receivable")
 

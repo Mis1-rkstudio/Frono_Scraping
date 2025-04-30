@@ -13,8 +13,8 @@ if os.path.exists(".env"):
 
 # 🔐 Local JSON auth (only if GOOGLE_APPLICATION_CREDENTIALS not already set)
 if not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"):
-    if os.path.exists("my-service-account.json"):
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "my-service-account.json"
+    if os.path.exists("service_account_key.json"):
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "service_account_key.json"
         print("✅ Set GOOGLE_APPLICATION_CREDENTIALS for local run.")
 
         

@@ -19,7 +19,6 @@ def run_all_reports():
         "Sales Invoice": getSalesInvoice(),
         "Sales Order Details": getSalesOrderDetails(),
         "Sales Pending Order": getSalesPendingOrder(),
-        "Stock": getStock(),
         "Broker": getBroker(),
         "Customer": getCustomer(),
         "Goods Return": getGoodsReturn(),
@@ -28,9 +27,11 @@ def run_all_reports():
         "Stock Valuation": getStockValuation(),
         "Account Payable": getAccountPayable(),
         "Account Receivable": getAccountReceivable(),
+        "Stock": getStock(),
     }
 
     print("\n========== Report Download Results ==========")
     for report, result in results.items():
         print(f"{report}: {result}")
+    print("\n========== Report Download Results ==========")
 

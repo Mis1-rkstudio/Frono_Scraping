@@ -146,37 +146,37 @@ def modify_sales_report_dataframe(df):
 def modify_order_dataframe(df):
     print("🛠 Modifying Sales Pending Order Dataframe...")
 
-    # ✅ Standardize column names: Remove spaces, slashes, and make lowercase
     df = standardize_column_names(df)
-
-    
 
     # ✅ Define required columns after normalizing column names
     required_columns = [
-        "customer_name", "item_code", "item_name", "color_name_code", 
-        "total", "so_no", "so_date", "broker"
+        "Customer_Name", "Item_Code", "Item_Name", "Color_Name_Code", 
+        "Total", "SO_No", "SO_Date", "Broker"
     ]
 
     # ✅ Check if all required columns exist
     missing_cols = [col for col in required_columns if col not in df.columns]
     if missing_cols:
         print(f"⚠️ Missing Columns: {missing_cols}")
-        print("🔍 DataFrame Columns:", df.columns.tolist())  # Debugging step
+        print(f"⚠️ All Columns: {df.columns.tolist()}")
         return None  # Prevent failure by returning None
 
     # ✅ Select only required columns
     df = df[required_columns]
 
     # ✅ Drop rows where 'so_no' is blank or NaN
-    df = df[df["so_no"].notna() & (df["so_no"].astype(str).str.strip() != "")]
+    df = df[df["SO_No"].notna() & (df["SO_No"].astype(str).str.strip() != "")]
 
     # ✅ Convert 'SO Date' to proper datetime format
-    df["so_date"] = pd.to_datetime(df["so_date"], format="%d/%m/%Y", errors='coerce')
+    df["SO_Date"] = pd.to_datetime(df["SO_Date"], format="%d/%m/%Y", errors='coerce')
 
     # ✅ Reset index
     df.reset_index(drop=True, inplace=True)
 
-    # print("✅ Dataframe modification completed!")
+    # Convert all data to string
+    df = df.astype(str)
+    df.reset_index(drop=True, inplace=True)
+    
     return df
 
 def modify_stock_dataframe(df):
@@ -188,7 +188,11 @@ def modify_stock_dataframe(df):
     if "Item" in df.columns:
         df = df.loc[~df["Item"].str.contains("Grand Total", case=False, na=False)]
     
-    return df.astype(str)
+    # ✅ Convert all data to string
+    df = df.astype(str)
+    df.reset_index(drop=True, inplace=True)
+
+    return df
 
 def modify_sales_invoice_dataframe(df):
     print("🛠 Modifying Sales Invoice Data...")
@@ -212,8 +216,6 @@ def modify_sales_invoice_dataframe(df):
 def modify_pending_po(df):
     print("🛠 Modifying Pending Purchase Order Report...")
     
-    df = standardize_column_names(df)
-
     # Rename the first column to "Customer Name"
     df.rename(columns={df.columns[0]: "Vendor Name"}, inplace=True)
     
@@ -233,8 +235,10 @@ def modify_pending_po(df):
     # Drop rows where "Item Name" is blank
     df = df.dropna(subset=["Item Name"])
 
+    df = standardize_column_names(df)
+
     # Convert all data to string
-    # df = df.astype(str)
+    df = df.astype(str)
     df.reset_index(drop=True, inplace=True)
     
     return df

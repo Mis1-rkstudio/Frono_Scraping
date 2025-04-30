@@ -22,7 +22,7 @@ def getSalesPendingOrder():
         log("Opening FronoCloud login page and logging in...")
         login(driver, username, password)
 
-        log("Navigating to 'Customer Wise Item Details' report...")
+        log("Navigating to 'Customer Wise Item Details (Sales Pending Order)' report...")
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "pn_id_3_7_header"))).click()
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.LINK_TEXT, "Customer Wise Item Details"))).click()
         time.sleep(1)
@@ -54,9 +54,9 @@ def getSalesPendingOrder():
         # Upload to BigQuery
         upload_to_bigquery(df, table_name="sales_pending")
 
-        # Delete file
-        os.remove(downloaded_file)
-        log(f"🗑️ Deleted local file: {downloaded_file}")
+        # # Delete file
+        # os.remove(downloaded_file)
+        # log(f"🗑️ Deleted local file: {downloaded_file}")
 
         return f"Success: {downloaded_file}"
 

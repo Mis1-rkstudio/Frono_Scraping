@@ -1,4 +1,5 @@
-selenium>=4.0.0
+selenium
+webdriver-manager
 pandas
 pandas-gbq
 Flask

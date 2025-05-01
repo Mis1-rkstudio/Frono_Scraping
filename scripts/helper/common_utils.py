@@ -56,13 +56,14 @@ def load_dataframe(file_path):
     return df
 
 def upload_to_bigquery(df, table_name, dataset_id="frono_2025"):
-    """
-    Uploads dataframe to BigQuery table.
-    """
     log(f"Creating BigQuery client...")
     client = bigquery.Client()
     project_id = client.project
-    table_id = f"{project_id}.{dataset_id}.{table_name}"
+
+    # ✅ Add prefix to table name
+    prefixed_table_name = f"kolkata_{table_name}"       # Change this for Surat data
+    table_id = f"{project_id}.{dataset_id}.{prefixed_table_name}"
+
 
     dataset_ref = bigquery.Dataset(f"{project_id}.{dataset_id}")
     try:

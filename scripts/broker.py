@@ -20,7 +20,7 @@ def getBroker():
     actions = ActionChains(driver)
 
     try:
-        log("Logging in to FronoCloud...")
+        # log("Logging in to FronoCloud...")
         login(driver, username, password)
 
         log("Navigating to Broker page...")
@@ -39,17 +39,16 @@ def getBroker():
 
         df = load_dataframe(downloaded_file)
 
-        log("Modifying DataFrame...")
         df = modify_broker_dataframe(df)
 
-        log("Uploading to BigQuery...")
+        # log("Uploading to BigQuery...")
         upload_to_bigquery(df, dataset_id="frono", table_name="broker")
 
         # Delete file
         os.remove(downloaded_file)
         log(f"🗑️ Deleted local file: {downloaded_file}")
 
-        return f"Success: {downloaded_file}"
+        return f"Success"
 
 
     except Exception as e:

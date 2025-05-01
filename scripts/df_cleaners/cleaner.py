@@ -84,9 +84,6 @@ def clean_filename(file_name):
 def modify_sales_report_dataframe(df):
     print("🛠 Modifying Sales Report...")
     
-    # ✅ Replace spaces and "/" in column names with underscores
-    df = standardize_column_names(df)
-
     # Drop columns where the first row has blanks
     df = df.dropna(axis=1, how='all')
 
@@ -137,6 +134,9 @@ def modify_sales_report_dataframe(df):
 
     # Remove the first column
     df = df.iloc[:, 1:]
+
+    # ✅ Replace spaces and "/" in column names with underscores
+    df = standardize_column_names(df)
 
     # Reset index
     df.reset_index(drop=True, inplace=True)
@@ -351,9 +351,9 @@ def modify_gr_report(df):
     
 
     # Step 6: Trim all columns
-    df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+    df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
      # Step 11: Convert all string values to uppercase
-    df = df.applymap(lambda x: x.upper() if isinstance(x, str) else x)
+    df = df.map(lambda x: x.upper() if isinstance(x, str) else x)
     
     # Step 1: Remove completely empty rows
     df_cleaned = df.dropna(how='all')
@@ -363,7 +363,7 @@ def modify_gr_report(df):
     df_cleaned = df_cleaned[~df_cleaned['Customer Name'].astype(str).str.contains('Total', na=False)]
 
     # Step 3: Standardize Date Format in "CN Date"
-    df_cleaned['CN Date'] = pd.to_datetime(df_cleaned['CN Date'], errors='coerce')
+    df_cleaned['CN Date'] = pd.to_datetime(df_cleaned['CN Date'], errors='coerce', dayfirst=True)
 
     # Step 4: Ensure "Qty" and "Amount" are numeric
     df_cleaned['Qty'] = pd.to_numeric(df_cleaned['Qty'], errors='coerce')

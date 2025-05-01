@@ -23,7 +23,7 @@ def getAccountPayable():
     actions = ActionChains(driver)
 
     try:
-        log("Opening FronoCloud login page and logging in...")
+        # log("Opening FronoCloud login page and logging in...")
         login(driver, username, password)
 
         log("Navigating to 'Account Payable' report...")
@@ -51,7 +51,7 @@ def getAccountPayable():
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()=' Search ']"))).click()
         time.sleep(20)
         
-        log("Exporting to Excel...")
+        # log("Exporting to Excel...")
         actions.send_keys(Keys.TAB * 6 + Keys.SPACE).perform()
         time.sleep(2)
 
@@ -60,7 +60,6 @@ def getAccountPayable():
 
         df = load_dataframe(downloaded_file)
 
-        log("Modifying DataFrame...")
         df = modify_account_payable_dataframe(df)
 
         # Upload to BigQuery
@@ -70,7 +69,7 @@ def getAccountPayable():
         os.remove(downloaded_file)
         log(f"🗑️ Deleted local file: {downloaded_file}")
 
-        return f"Success: {downloaded_file}"
+        return f"Success"
 
     except Exception as e:
         log(f"❌ Error during scraping: {e}")

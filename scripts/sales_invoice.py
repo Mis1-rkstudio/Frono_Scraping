@@ -20,7 +20,7 @@ def getSalesInvoice():
     actions = ActionChains(driver)
 
     try:
-        log("Logging in to FronoCloud...")
+        # log("Logging in to FronoCloud...")
         login(driver, username, password)
 
         log("Navigating to Invoice page...")
@@ -44,7 +44,6 @@ def getSalesInvoice():
 
         df = load_dataframe(downloaded_file)
 
-        log("Modifying DataFrame...")
         df = modify_sales_invoice_dataframe(df)
 
         # Upload to BigQuery
@@ -54,7 +53,7 @@ def getSalesInvoice():
         os.remove(downloaded_file)
         log(f"🗑️ Deleted local file: {downloaded_file}")
 
-        return f"Success: {downloaded_file}"
+        return f"Success"
 
     except Exception as e:
         log(f"❌ Error during scraping: {e}")

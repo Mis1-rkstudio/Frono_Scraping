@@ -20,7 +20,7 @@ def getAccountReceivable():
     actions = ActionChains(driver)
 
     try:
-        log("Opening FronoCloud login page and logging in...")
+        # log("Opening FronoCloud login page and logging in...")
         login(driver, username, password)
 
         log("Navigating to 'Account Receivable' report...")
@@ -41,7 +41,7 @@ def getAccountReceivable():
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//button[@data-target="#detailed"]'))).click()
         time.sleep(10)
         
-        log("Exporting to Excel...")
+        # log("Exporting to Excel...")
         actions.send_keys(Keys.TAB * 7 + Keys.SPACE).perform()
         time.sleep(2)
 
@@ -50,17 +50,16 @@ def getAccountReceivable():
 
         df = load_dataframe(downloaded_file)
 
-        log("Modifying DataFrame...")
         df = modify_account_receivable_dataframe(df)
 
         # Upload to BigQuery
         upload_to_bigquery(df, table_name="account_receivable")
 
         # Delete file
-        # os.remove(downloaded_file)
-        # log(f"🗑️ Deleted local file: {downloaded_file}")
+        os.remove(downloaded_file)
+        log(f"🗑️ Deleted local file: {downloaded_file}")
 
-        return f"Success: {downloaded_file}"
+        return f"Success"
 
     except Exception as e:
         log(f"❌ Error during scraping: {e}")

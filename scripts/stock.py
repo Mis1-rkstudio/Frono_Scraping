@@ -19,7 +19,7 @@ def getStock():
     actions = ActionChains(driver)
 
     try:
-        log("Logging in to FronoCloud...")
+        # log("Logging in to FronoCloud...")
         login(driver, username, password)
 
         log("Navigating to Stock...")
@@ -28,10 +28,13 @@ def getStock():
         driver.execute_script("arguments[0].click();", element)
 
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[normalize-space(text())='Stock Summary']"))).click()
-        advance_filter_btn = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, '08')))
-        driver.execute_script("arguments[0].focus();", advance_filter_btn)
+        # Wait and focus
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, '08')))
+        driver.execute_script("document.getElementById('08').focus();")
         actions.key_down(Keys.SHIFT).send_keys(Keys.TAB).send_keys(Keys.TAB).send_keys(Keys.ARROW_RIGHT).key_up(Keys.SHIFT).perform()
-        advance_filter_btn = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, '08'))).click()
+        # Re-find and click
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, '08'))).click()
+
         time.sleep(2)
         actions.key_down(Keys.ALT).send_keys('a').key_up(Keys.ALT).perform()
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Apply']"))).click()
@@ -43,8 +46,8 @@ def getStock():
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()=' Search ']"))).click()
         time.sleep(20)
 
-        log("Exporting to Excel...")
-        actions.send_keys(Keys.TAB * 12 + Keys.SPACE).perform()
+        # log("Exporting to Excel...")
+        actions.send_keys(Keys.TAB * 11 + Keys.SPACE).perform()
         time.sleep(2)
 
         downloaded_file = wait_for_download(download_path)
@@ -52,7 +55,6 @@ def getStock():
 
         df = load_dataframe(downloaded_file)
 
-        log("Modifying DataFrame...")
         df = modify_stock_dataframe(df)
 
         # Upload to BigQuery
@@ -62,7 +64,7 @@ def getStock():
         os.remove(downloaded_file)
         log(f"🗑️ Deleted local file: {downloaded_file}")
 
-        return f"Success: {downloaded_file}"
+        return f"Success"
 
     except Exception as e:
         log(f"❌ Error during scraping: {e}")

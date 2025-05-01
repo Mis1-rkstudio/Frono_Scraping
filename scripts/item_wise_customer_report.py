@@ -6,6 +6,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 
+from scripts.df_cleaners.cleaner import modify_sales_report_dataframe
 from scripts.helper.browser_manager import create_driver
 from scripts.helper.common_utils import ensure_download_path, load_credentials, load_dataframe, log, upload_to_bigquery, wait_for_download
 from scripts.helper.fronocloud_login import login
@@ -18,7 +19,7 @@ def getItemWiseSales():
     actions = ActionChains(driver)
 
     try:
-        log("Opening FronoCloud login page and logging in...")
+        # log("Opening FronoCloud login page and logging in...")
         login(driver, username, password)
 
         log("Navigating to 'Item Wise Customer' report...")
@@ -39,7 +40,7 @@ def getItemWiseSales():
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()=' Search ']"))).click()
         time.sleep(10)
 
-        log("Exporting to Excel...")
+        # log("Exporting to Excel...")
         actions.send_keys(Keys.TAB * 11 + Keys.SPACE).perform()
 
         downloaded_file = wait_for_download(download_path)
@@ -47,8 +48,7 @@ def getItemWiseSales():
 
         df = load_dataframe(downloaded_file)
 
-        log("Modifying DataFrame...")
-        df = (df)
+        df = modify_sales_report_dataframe(df)
 
         # Upload to BigQuery
         upload_to_bigquery(df, table_name="item_wise_customer")
@@ -57,7 +57,7 @@ def getItemWiseSales():
         os.remove(downloaded_file)
         log(f"🗑️ Deleted local file: {downloaded_file}")
 
-        return f"Success: {downloaded_file}"
+        return f"Success"
 
     except Exception as e:
         log(f"❌ Error during scraping: {e}")

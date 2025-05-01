@@ -21,7 +21,7 @@ def getCustomer():
     actions = ActionChains(driver)
 
     try:
-        log("Logging in to FronoCloud...")
+        # log("Logging in to FronoCloud...")
         login(driver, username, password)
 
         log("Navigating to Customer page...")
@@ -40,7 +40,6 @@ def getCustomer():
 
         df = load_dataframe(downloaded_file)
 
-        log("Modifying DataFrame...")
         df = modify_customer_dataframe(df)
 
         # Upload to BigQuery
@@ -50,7 +49,7 @@ def getCustomer():
         os.remove(downloaded_file)
         log(f"🗑️ Deleted local file: {downloaded_file}")
 
-        return f"Success: {downloaded_file}"
+        return f"Success"
 
 
     except Exception as e:

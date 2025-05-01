@@ -31,17 +31,18 @@ def wait_for_download(directory, extension=".xlsx", timeout=30):
         time.sleep(1)
     raise Exception("Download timeout")
 
-def ensure_download_path(folder_name):
-    path = os.path.join(os.getcwd(), "Kolkata", folder_name)
+def ensure_download_path(location, folder_name):
+    path = os.path.join(os.getcwd(), location, folder_name)
     os.makedirs(path, exist_ok=True)
     return path
 
-def load_credentials():
-    username = os.environ.get("FRONO_USERNAME")
-    password = os.environ.get("FRONO_PASSWORD")
+def load_credentials(location="kolkata"):
+    username = os.environ.get(f"FRONO_{location.upper()}_USERNAME")
+    password = os.environ.get(f"FRONO_{location.upper()}_PASSWORD")
     if not username or not password:
-        raise EnvironmentError("FRONO_USERNAME or FRONO_PASSWORD is missing.")
+        raise EnvironmentError(f"Missing credentials for {location}")
     return username, password
+
 
 def load_dataframe(file_path):
     print(f"📂 Loading file: {file_path}")
@@ -55,13 +56,13 @@ def load_dataframe(file_path):
 
     return df
 
-def upload_to_bigquery(df, table_name, dataset_id="frono_2025"):
+def upload_to_bigquery(df, table_name, dataset_id="frono_2025", location="kolkata"):
     log(f"Creating BigQuery client...")
     client = bigquery.Client()
     project_id = client.project
 
     # ✅ Add prefix to table name
-    prefixed_table_name = f"kolkata_{table_name}"       # Change this for Surat data
+    prefixed_table_name = f"{location.lower()}_{table_name}"
     table_id = f"{project_id}.{dataset_id}.{prefixed_table_name}"
 
 

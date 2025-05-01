@@ -14,24 +14,26 @@ from scripts.stock_valuation import getStockValuation
 
 
 def run_all_reports():
-    results = {
-        "Purchase Pending Order": getPurchasePendingOrder(),
-        "Sales Invoice": getSalesInvoice(),
-        "Sales Order Details": getSalesOrderDetails(),
-        "Sales Pending Order": getSalesPendingOrder(),
-        "Broker": getBroker(),
-        "Customer": getCustomer(),
-        "Goods Return": getGoodsReturn(),
-        "Item Wise Customer": getItemWiseSales(),
-        "Purchase Invoice": getPurchaseInvoice(),
-        "Stock Valuation": getStockValuation(),
-        "Account Payable": getAccountPayable(),
-        "Account Receivable": getAccountReceivable(),
-        "Stock": getStock(),
-    }
+    for location in ["kolkata", "surat"]:
+        print(f"\n📍 Running automation for: {location.upper()}")
 
-    print("\n========== Report Download Results ==========")
-    for report, result in results.items():
-        print(f"{report}: {result}")
-    print("\n========== Report Download Results ==========")
+        results = {
+            "Purchase Pending Order": getPurchasePendingOrder(location),
+            "Sales Invoice": getSalesInvoice(location),
+            "Sales Order Details": getSalesOrderDetails(location),
+            "Sales Pending Order": getSalesPendingOrder(location),
+            "Broker": getBroker(location),
+            "Customer": getCustomer(location),
+            "Goods Return": getGoodsReturn(location),
+            "Item Wise Customer": getItemWiseSales(location),
+            "Purchase Invoice": getPurchaseInvoice(location),
+            "Stock Valuation": getStockValuation(location),
+            "Account Payable": getAccountPayable(location),
+            "Account Receivable": getAccountReceivable(location),
+            "Stock": getStock(location),
+        }
 
+        print("\n========== Report Download Results ==========")
+        for report, result in results.items():
+            print(f"{location.upper()} | {report}: {result}")
+        print("=============================================")

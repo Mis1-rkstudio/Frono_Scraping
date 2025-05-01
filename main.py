@@ -4,6 +4,7 @@ import pytz
 import scripts.main as scraper  # Your scraping function
 
 
+
 app = Flask(__name__)
 
 # Initialize last run time as None

@@ -12,10 +12,10 @@ from scripts.helper.common_utils import ensure_download_path, load_credentials, 
 from scripts.helper.fronocloud_login import login
 
 
-def getSalesInvoice():
+def getSalesInvoice(location):
     folder = "Frono_Sales_Invoice_Report"
-    download_path = ensure_download_path(folder)
-    username, password = load_credentials()
+    download_path = ensure_download_path(location, folder)
+    username, password = load_credentials(location)
     driver = create_driver(download_path)
     actions = ActionChains(driver)
 
@@ -47,7 +47,7 @@ def getSalesInvoice():
         df = modify_sales_invoice_dataframe(df)
 
         # Upload to BigQuery
-        upload_to_bigquery(df, table_name="sales_invoice")
+        upload_to_bigquery(df, table_name="sales_invoice", location=location)
 
         # Delete file
         os.remove(downloaded_file)

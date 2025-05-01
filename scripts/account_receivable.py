@@ -12,10 +12,10 @@ from scripts.helper.common_utils import ensure_download_path, load_credentials, 
 from scripts.helper.fronocloud_login import login
 
 
-def getAccountReceivable():
+def getAccountReceivable(location):
     folder = "Frono_Account_Receivable_Report"
-    download_path = ensure_download_path(folder)
-    username, password = load_credentials()
+    download_path = ensure_download_path(location, folder)
+    username, password = load_credentials(location)
     driver = create_driver(download_path)
     actions = ActionChains(driver)
 
@@ -53,7 +53,7 @@ def getAccountReceivable():
         df = modify_account_receivable_dataframe(df)
 
         # Upload to BigQuery
-        upload_to_bigquery(df, table_name="account_receivable")
+        upload_to_bigquery(df, table_name="account_receivable", location=location)
 
         # Delete file
         os.remove(downloaded_file)

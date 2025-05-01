@@ -12,13 +12,10 @@ from scripts.helper.common_utils import ensure_download_path, load_credentials, 
 from scripts.helper.fronocloud_login import login
 
 
-
-
-
-def getAccountPayable():
+def getAccountPayable(location):
     folder = "Frono_Account_Payable_Report"
-    download_path = ensure_download_path(folder)
-    username, password = load_credentials()
+    download_path = ensure_download_path(location, folder)
+    username, password = load_credentials(location)
     driver = create_driver(download_path)
     actions = ActionChains(driver)
 
@@ -63,7 +60,7 @@ def getAccountPayable():
         df = modify_account_payable_dataframe(df)
 
         # Upload to BigQuery
-        upload_to_bigquery(df, table_name="account_payable")
+        upload_to_bigquery(df, table_name="account_payable", location=location)
 
         # Delete file
         os.remove(downloaded_file)

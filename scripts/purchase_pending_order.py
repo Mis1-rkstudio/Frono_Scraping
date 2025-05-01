@@ -11,10 +11,11 @@ from scripts.helper.browser_manager import create_driver
 from scripts.helper.common_utils import ensure_download_path, load_credentials, load_dataframe, log, upload_to_bigquery, wait_for_download
 from scripts.helper.fronocloud_login import login
 
-def getPurchasePendingOrder():
+
+def getPurchasePendingOrder(location):
     folder = "Frono_Purchase_Pending_Order_Report"
-    download_path = ensure_download_path(folder)
-    username, password = load_credentials()
+    download_path = ensure_download_path(location, folder)
+    username, password = load_credentials(location)
     driver = create_driver(download_path)
     actions = ActionChains(driver)
 
@@ -56,7 +57,7 @@ def getPurchasePendingOrder():
         df = modify_pending_po(df)
 
         # Upload to BigQuery
-        upload_to_bigquery(df, table_name="purchase_pending")
+        upload_to_bigquery(df, table_name="purchase_pending", location=location)
 
         # Delete file
         os.remove(downloaded_file)

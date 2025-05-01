@@ -18,4 +18,5 @@ venv/
 service_account_key.json
 
 # Ignore local downloads folder if any
-Kolkata/
+kolkata/
+surat/

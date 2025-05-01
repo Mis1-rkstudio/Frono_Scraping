@@ -11,10 +11,11 @@ from scripts.helper.browser_manager import create_driver
 from scripts.helper.common_utils import ensure_download_path, load_credentials, load_dataframe, log, upload_to_bigquery, wait_for_download
 from scripts.helper.fronocloud_login import login
 
-def getItemWiseSales():
+
+def getItemWiseSales(location):
     folder = "Frono_Item_Wise_Sales_Report"
-    download_path = ensure_download_path(folder)
-    username, password = load_credentials()
+    download_path = ensure_download_path(location, folder)
+    username, password = load_credentials(location)
     driver = create_driver(download_path)
     actions = ActionChains(driver)
 
@@ -51,7 +52,7 @@ def getItemWiseSales():
         df = modify_sales_report_dataframe(df)
 
         # Upload to BigQuery
-        upload_to_bigquery(df, table_name="item_wise_customer")
+        upload_to_bigquery(df, table_name="item_wise_customer", location=location)
 
         # Delete file
         os.remove(downloaded_file)

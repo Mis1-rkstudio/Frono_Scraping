@@ -12,11 +12,10 @@ from scripts.helper.common_utils import ensure_download_path, load_credentials, 
 from scripts.helper.fronocloud_login import login
 
 
-
-def getGoodsReturn():
+def getGoodsReturn(location):
     folder = "Frono_Goods_Return_Report"
-    download_path = ensure_download_path(folder)
-    username, password = load_credentials()
+    download_path = ensure_download_path(location, folder)
+    username, password = load_credentials(location)
     driver = create_driver(download_path)
     actions = ActionChains(driver)
 
@@ -53,7 +52,7 @@ def getGoodsReturn():
         df = modify_gr_report(df)
 
         # Upload to BigQuery
-        upload_to_bigquery(df, table_name="goods_return")
+        upload_to_bigquery(df, table_name="goods_return", location=location)
 
         # Delete file
         os.remove(downloaded_file)

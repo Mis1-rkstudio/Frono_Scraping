@@ -3,6 +3,7 @@ webdriver-manager
 pandas
 pandas-gbq
 Flask
+gunicorn
 google-cloud-bigquery
 openpyxl
 pyarrow

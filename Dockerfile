@@ -16,4 +16,5 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Run using Gunicorn
-CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]
+# CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]
+CMD ["python", "app.py"]

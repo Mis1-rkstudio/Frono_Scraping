@@ -12,7 +12,7 @@ from scripts.helper.common_utils import ensure_download_path, load_credentials, 
 from scripts.helper.fronocloud_login import login
 
 
-def getAccountReceivable(location):
+def getAccountReceivableFrono(location):
     folder = "Frono_Account_Receivable_Report"
     download_path = ensure_download_path(location, folder)
     username, password = load_credentials(location)
@@ -36,10 +36,10 @@ def getAccountReceivable(location):
         time.sleep(1)
         actions.send_keys(Keys.TAB).perform()
         driver.execute_script("arguments[0].click();", driver.switch_to.active_element)
-        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//a[text()='This Financial Year']"))).click()
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//a[text()='Previous Financial Year']"))).click()
 
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//button[@data-target="#detailed"]'))).click()
-        time.sleep(10)
+        time.sleep(15)
         
         # log("Exporting to Excel...")
         actions.send_keys(Keys.TAB * 7 + Keys.SPACE).perform()
@@ -53,7 +53,7 @@ def getAccountReceivable(location):
         df = modify_account_receivable_dataframe(df)
 
         # Upload to BigQuery
-        upload_to_bigquery(df, table_name="account_receivable", location=location)
+        upload_to_bigquery(df, table_name="account_receivable", dataset_id="frono", location=location)
 
         # Delete file
         os.remove(downloaded_file)
@@ -68,4 +68,3 @@ def getAccountReceivable(location):
     finally:
         log("Closing browser...")
         driver.quit()
-

@@ -1,5 +1,6 @@
 from scripts.account_payable import getAccountPayable
 from scripts.account_receivable import getAccountReceivable
+from scripts.account_receivable_frono import getAccountReceivableFrono
 from scripts.broker import getBroker
 from scripts.customer import getCustomer
 from scripts.goods_return import getGoodsReturn
@@ -18,19 +19,20 @@ def run_all_reports():
         print(f"\n📍 Running automation for: {location.upper()}")
 
         results = {
-            "Purchase Pending Order": getPurchasePendingOrder(location),
-            "Sales Invoice": getSalesInvoice(location),
-            "Sales Order Details": getSalesOrderDetails(location),
-            "Sales Pending Order": getSalesPendingOrder(location),
-            "Broker": getBroker(location),
-            "Customer": getCustomer(location),
-            "Goods Return": getGoodsReturn(location),
-            "Item Wise Customer": getItemWiseSales(location),
-            "Purchase Invoice": getPurchaseInvoice(location),
-            "Stock Valuation": getStockValuation(location),
-            "Account Payable": getAccountPayable(location),
-            "Account Receivable": getAccountReceivable(location),
-            "Stock": getStock(location),
+            # "Purchase Pending Order": getPurchasePendingOrder(location),
+            # "Sales Invoice": getSalesInvoice(location),
+            # "Sales Order Details": getSalesOrderDetails(location),
+            # "Sales Pending Order": getSalesPendingOrder(location),
+            # "Broker": getBroker(location),
+            # "Customer": getCustomer(location),
+            # "Goods Return": getGoodsReturn(location),
+            # "Item Wise Customer": getItemWiseSales(location),
+            # "Purchase Invoice": getPurchaseInvoice(location),
+            # "Stock Valuation": getStockValuation(location),
+            # "Account Payable": getAccountPayable(location),
+            # "Account Receivable": getAccountReceivable(location),
+            "Account Receivable Frono": getAccountReceivableFrono(location),
+            # "Stock": getStock(location),
         }
 
         print("\n========== Report Download Results ==========")

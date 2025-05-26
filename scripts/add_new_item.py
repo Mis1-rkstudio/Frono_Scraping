@@ -1,6 +1,7 @@
 import os
 import time
 import random
+from collections import defaultdict
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -15,6 +16,8 @@ from helper.fronocloud_login import login
 
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+
+
 
 # Configuration Constants
 SIZE_MAPPING = {
@@ -41,7 +44,7 @@ DROPDOWN_OPTIONS = {
     'category': ' Finish goods',
     'subcategory': ' Kurti',
     'brand': 'OLIVIA ',
-    'group': ' TFPK'
+    'group': ' PK'
 }
 
 # Timeouts and delays
@@ -145,6 +148,54 @@ def fetch_items_from_sheet():
         log("Using sample data as fallback")
         return generate_sample_items()
 
+def merge_items(raw_items):
+    merged = defaultdict(lambda: {
+        'Unit': 'PCS',
+        'HSN Code': '123456',
+        'Colors': set(),
+        'Sizes': set()
+    })
+
+    for item in raw_items:
+        design = item['Design No.']
+        merged[design]['Colors'].update(item.get('Colors', [])) # type: ignore
+        merged[design]['Sizes'].update(item.get('Sizes', [])) # type: ignore
+
+    # Convert sets to sorted lists and build final list
+    final_items = []
+    for design, data in merged.items():
+        final_items.append({
+            'Design No.': design,
+            'Unit': data['Unit'],
+            'HSN Code': data['HSN Code'],
+            'Colors': sorted(data['Colors']),
+            'Sizes': sorted(data['Sizes'])
+        })
+
+    return final_items
+
+def design_exists(driver, design_no):
+    try:
+        # Clear and enter the design number in the search field
+        search_input = WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.XPATH, '//input[@id="globalSearch"]'))
+        )
+        search_input.clear()
+        search_input.send_keys(design_no)
+        search_input.send_keys(Keys.ENTER)
+
+        time.sleep(2)  # Small delay for search results to load
+
+        # Check if the design number appears in the first row
+        result_xpath = f"//*[@id='pn_id_3-table']/tbody/tr/td/div[contains(text(), '{design_no}')]"
+        WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.XPATH, result_xpath))
+        )
+        return True
+    except:
+        return False
+
+
 def retry_on_failure(max_attempts=3, delay=1):
     def decorator(func):
         @wraps(func)
@@ -180,8 +231,6 @@ def wait_and_send_keys(driver, xpath, keys, timeout=10):
     return element
 
 
-
-
 def addNewItem(location):
     username, password = load_credentials(location)
     driver = create_driver()
@@ -191,12 +240,12 @@ def addNewItem(location):
 
     try:
         # Fetch items to add
-        items_to_add = fetch_items_from_sheet()
+        items_to_add = merge_items(fetch_items_from_sheet())
+
         if not items_to_add:
             log("No new items to add")
             return "No items to add"
 
-        # print(items_to_add)
         log(f"Starting to process {len(items_to_add)} items...")
         login(driver, username, password)
 
@@ -204,10 +253,26 @@ def addNewItem(location):
         time.sleep(DEFAULT_DELAY)
         driver.get(driver.current_url.replace("/dashboard", "/item/view"))
 
+        # Filter out items that already exist
+        unique_items = []
+        for item in items_to_add:
+            design_no = item['Design No.']
+            if design_exists(driver, design_no):
+                log(f"🟡 Skipping existing design: {design_no}")
+            else:
+                unique_items.append(item)
+
+        if not unique_items:
+            log("✅ All items already exist. Nothing to add.")
+            return "All items already exist."
+        
+# ========================= Fix: Also modify the existing items if there is a change in any value ========================= #
+
+        # Update items_to_add to only include unique items
         wait_and_click(driver, "//button[contains(text(), ' Add New Item ')]")
 
         # Process each item
-        for item in items_to_add:
+        for item in unique_items:
             try:
                 log(f"Processing item: {item['Design No.']}")
                 
@@ -245,30 +310,40 @@ def addNewItem(location):
                         color_label.find_element(By.XPATH, "./preceding-sibling::td").click()
                    
                     except Exception as e:
-                        # log(f"Warning: Could not select color {color}: {e}")
-                        log(f"Warning: Could not select color {color}")
-                        # =============================================TODO: FIX =======================================================
-                        # Fill in manual color inputs
-                        WebDriverWait(driver, 10).until(
-                            EC.presence_of_element_located((By.ID, 'colorname'))
-                        ).send_keys(color)
+                        log(f"Warning: Could not select color {color}: {e.__class__.__name__} - {str(e)}")
 
-                        WebDriverWait(driver, 10).until(
-                            EC.presence_of_element_located((By.ID, 'colorcode'))
-                        ).send_keys(color)
+                        try:
+                            # Step 1: Fill in the color manually
+                            color_input = WebDriverWait(driver, 5).until(
+                                EC.presence_of_element_located((By.ID, 'colorname'))
+                            )
+                            color_input.clear()
+                            color_input.send_keys(color)
 
-                        # Tab to move focus (if needed before clicking)
-                        actions.send_keys(Keys.TAB).perform()
+                            code_input = WebDriverWait(driver, 5).until(
+                                EC.presence_of_element_located((By.ID, 'colorcode'))
+                            )
+                            code_input.clear()
+                            code_input.send_keys(color)
 
-                        # Trigger click via keyboard focus
-                        elem = driver.switch_to.active_element
-                        time.sleep(2)
-                        driver.execute_script("arguments[0].click();", elem)
-                        # ==============================================================================================================
+                            # Step 2: Move focus and trigger click
+                            actions.send_keys(Keys.TAB).perform()
+
+                            # Try clicking directly
+                            elem = driver.switch_to.active_element
+                            elem.click()
+
+                            # Step 3: Wait for the new color to appear in the list and select it
+                            color_label = WebDriverWait(driver, 10).until(
+                                EC.element_to_be_clickable((By.XPATH, f"//td[normalize-space(text())='{color.upper()}']"))
+                            )
+                            color_label.find_element(By.XPATH, "./preceding-sibling::td").click()
+
+                        except Exception as inner_e:
+                            log(f"Manual entry + select failed for color {color}: {inner_e}")
 
                 # Confirm selection
                 wait_and_click(driver, "//button[contains(text(), 'OK')]")
-
                 
                 # Handle Sizes
                 wait_and_click(driver, "//select[@id='sizeGrp']/option[2]")

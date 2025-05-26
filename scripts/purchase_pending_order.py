@@ -6,13 +6,13 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 
-from scripts.df_cleaners.cleaner import modify_pending_po
-from scripts.helper.browser_manager import create_driver
-from scripts.helper.common_utils import ensure_download_path, load_credentials, load_dataframe, log, upload_to_bigquery, wait_for_download
-from scripts.helper.fronocloud_login import login
+from df_cleaners.cleaner import modify_pending_po
+from helper.browser_manager import create_driver
+from helper.common_utils import ensure_download_path, load_credentials, load_dataframe, log, upload_to_bigquery, wait_for_download
+from helper.fronocloud_login import login
 
 
-def getPurchasePendingOrder(location):
+def getPurchasePendingOrderThis(location):
     folder = "Frono_Purchase_Pending_Order_Report"
     download_path = ensure_download_path(location, folder)
     username, password = load_credentials(location)
@@ -55,7 +55,8 @@ def getPurchasePendingOrder(location):
         df = load_dataframe(downloaded_file)
 
         df = modify_pending_po(df)
-
+        df.to_excel(downloaded_file, index=False)
+        
         # Upload to BigQuery
         upload_to_bigquery(df, table_name="purchase_pending", location=location)
 
@@ -72,4 +73,3 @@ def getPurchasePendingOrder(location):
     finally:
         log("Closing browser...")
         driver.quit()
-

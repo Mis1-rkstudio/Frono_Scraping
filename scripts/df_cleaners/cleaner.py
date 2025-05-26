@@ -231,9 +231,13 @@ def modify_pending_po(df):
     
     # Apply fill down logic
     df = fill_down_non_numeric(df, "Vendor Name")
-    
+    # print(df.columns)
+
     # Drop rows where "Item Name" is blank
-    df = df.dropna(subset=["Item Name"])
+    try:
+        df = df.dropna(subset=["Item Name"])
+    except:
+        df = df.dropna(subset=["Item_Name"])
 
     df = standardize_column_names(df)
 

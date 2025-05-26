@@ -1,7 +1,7 @@
 from flask import Flask
 import datetime
 import pytz
-import scripts.main as scraper  # Your scraping function
+import main as scraper  # Your scraping function
 
 
 

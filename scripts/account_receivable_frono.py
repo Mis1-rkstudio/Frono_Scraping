@@ -6,7 +6,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 
-from df_cleaners.cleaner import modify_account_payable_dataframe
+from df_cleaners.cleaner import modify_account_receivable_dataframe
 from helper.browser_manager import create_driver
 from helper.common_utils import ensure_download_path, load_credentials, load_dataframe, log, upload_to_bigquery, wait_for_download
 from helper.fronocloud_login import login

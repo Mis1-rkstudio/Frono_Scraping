@@ -43,4 +43,3 @@ def run_all_reports():
         print("=============================================")
 
 
-run_all_reports()

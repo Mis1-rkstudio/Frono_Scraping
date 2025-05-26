@@ -48,7 +48,7 @@ def getItemWiseSales(location):
         log(f"✅ Downloaded file saved as: {downloaded_file}")
 
         df = load_dataframe(downloaded_file)
-
+        
         df = modify_sales_report_dataframe(df)
 
         # Upload to BigQuery

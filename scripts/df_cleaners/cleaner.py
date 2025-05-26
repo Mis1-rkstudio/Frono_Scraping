@@ -78,9 +78,6 @@ def clean_filename(file_name):
     file_name = re.sub(r"[^\w\s_.-]", "", file_name)  # Remove special characters
     return file_name.replace(" ", "_").lower()
 
-
-
-# Item wise customer report
 def modify_sales_report_dataframe(df):
     print("🛠 Modifying Sales Report...")
     
@@ -140,7 +137,7 @@ def modify_sales_report_dataframe(df):
 
     # Reset index
     df.reset_index(drop=True, inplace=True)
-    
+
     return df
 
 def modify_order_dataframe(df):

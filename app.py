@@ -1,7 +1,8 @@
 from flask import Flask
 import datetime
 import pytz
-import main as scraper  # Your scraping function
+
+from scripts.main import run_all_reports
 
 
 
@@ -47,7 +48,7 @@ def run_scraper():
     # Allow execution only between 11 AM and 9 PM IST
     if 11 <= current_hour < 21:
         last_run_time = datetime.datetime.now(pytz.utc)  # Save UTC time
-        scraper.run_all_reports()
+        run_all_reports()
         return f"🚀 Scraper started at {now.strftime('%Y-%m-%d %H:%M:%S')} IST", 200
     else:
         return f"⏸️ Outside allowed time window (Current IST: {now.strftime('%H:%M:%S')}). Scraper not run.", 200

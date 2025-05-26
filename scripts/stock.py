@@ -6,10 +6,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 
-from df_cleaners.cleaner import modify_stock_dataframe
-from helper.browser_manager import create_driver
-from helper.common_utils import ensure_download_path, load_credentials, load_dataframe, log, upload_to_bigquery, wait_for_download
-from helper.fronocloud_login import login
+from scripts.df_cleaners.cleaner import modify_stock_dataframe
+from scripts.helper.browser_manager import create_driver
+from scripts.helper.common_utils import ensure_download_path, load_credentials, load_dataframe, log, upload_to_bigquery, wait_for_download
+from scripts.helper.fronocloud_login import login
 
 
 def getStock(location):

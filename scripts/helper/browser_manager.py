@@ -4,7 +4,7 @@ import os
 
 def create_driver(download_path=None):
     options = webdriver.ChromeOptions()
-    # options.add_argument("--headless=new")  
+    options.add_argument("--headless=new")  
     options.add_argument("--window-size=1920,1080")
 
     # 💡 These 3 suppress common errors in headless/cloud environments

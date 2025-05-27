@@ -51,8 +51,12 @@ def getItemWiseSales(location):
         
         df = modify_sales_report_dataframe(df)
 
+        custom_schema = {
+            "Date": "DATE"
+        }
+
         # Upload to BigQuery
-        upload_to_bigquery(df, table_name="item_wise_customer", location=location)
+        upload_to_bigquery(df, table_name="item_wise_customer", location=location, custom_schema_map=custom_schema)
 
         # Delete file
         os.remove(downloaded_file)

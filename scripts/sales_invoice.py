@@ -46,8 +46,14 @@ def getSalesInvoice(location):
 
         df = modify_sales_invoice_dataframe(df)
 
+        custom_schema = {
+            "Date": "DATE",
+            "Inv_Date": "DATE",
+            "Created_Date": "DATE",
+        }
+
         # Upload to BigQuery
-        upload_to_bigquery(df, table_name="sales_invoice", location=location)
+        upload_to_bigquery(df, table_name="sales_invoice", location=location, custom_schema_map=custom_schema)
 
         # Delete file
         os.remove(downloaded_file)

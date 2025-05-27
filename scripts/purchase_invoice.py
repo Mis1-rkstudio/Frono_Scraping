@@ -46,8 +46,15 @@ def getPurchaseInvoice(location):
 
         df = modify_purchase_invoice_dataframe(df)
 
+        custom_schema = {
+            "Invoice_No": "STRING",
+            "Date": "DATE",
+            "Inv_Date": "DATE",
+            "Created_Date": "DATE",
+        }
+
         # Upload to BigQuery
-        upload_to_bigquery(df, table_name="purchase_invoice", location=location)
+        upload_to_bigquery(df, table_name="purchase_invoice", location=location, custom_schema_map=custom_schema)
 
         # Delete file
         os.remove(downloaded_file)

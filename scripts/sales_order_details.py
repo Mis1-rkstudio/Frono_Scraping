@@ -50,8 +50,13 @@ def getSalesOrderDetails(location):
 
         df = modify_sales_order_dataframe(df)
 
+        custom_schema = {
+            "SO_Date": "DATE",
+            "Expected_Date": "DATE",
+        }
+
         # Upload to BigQuery
-        upload_to_bigquery(df, dataset_id="frono", table_name="sales_order_details", location=location)
+        upload_to_bigquery(df, dataset_id="frono", table_name="sales_order_details", location=location, custom_schema_map=custom_schema)
 
         # Delete file
         os.remove(downloaded_file)

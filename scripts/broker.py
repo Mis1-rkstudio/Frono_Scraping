@@ -41,8 +41,12 @@ def getBroker(location):
 
         df = modify_broker_dataframe(df)
 
+        custom_schema = {
+            "Created_Date": "DATE",
+        }
+
         # log("Uploading to BigQuery...")
-        upload_to_bigquery(df, dataset_id="frono", table_name="broker", location=location)
+        upload_to_bigquery(df, dataset_id="frono", table_name="broker", location=location, custom_schema_map=custom_schema)
 
         # Delete file
         os.remove(downloaded_file)

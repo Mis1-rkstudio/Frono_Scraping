@@ -51,9 +51,14 @@ def getAccountReceivable(location):
         df = load_dataframe(downloaded_file)
 
         df = modify_account_receivable_dataframe(df)
+        
+        custom_schema = {
+            "Date": "DATE",
+            "Due_Date": "DATE",
+        }
 
         # Upload to BigQuery
-        upload_to_bigquery(df, table_name="account_receivable", location=location)
+        upload_to_bigquery(df, table_name="account_receivable", location=location, custom_schema_map=custom_schema)
 
         # Delete file
         os.remove(downloaded_file)

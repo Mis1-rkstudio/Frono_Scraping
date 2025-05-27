@@ -52,8 +52,13 @@ def getAccountReceivableFrono(location):
 
         df = modify_account_receivable_dataframe(df)
 
+        custom_schema = {
+            "Date": "DATE",
+            "Due_Date": "DATE",
+        }
+
         # Upload to BigQuery
-        upload_to_bigquery(df, table_name="account_receivable", dataset_id="frono", location=location)
+        upload_to_bigquery(df, table_name="account_receivable", dataset_id="frono", location=location, custom_schema_map=custom_schema)
 
         # Delete file
         os.remove(downloaded_file)

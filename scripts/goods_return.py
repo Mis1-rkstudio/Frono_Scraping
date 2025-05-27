@@ -51,8 +51,12 @@ def getGoodsReturn(location):
 
         df = modify_gr_report(df)
 
+        custom_schema = {
+            "cn_date": "DATE"
+        }
+
         # Upload to BigQuery
-        upload_to_bigquery(df, table_name="goods_return", location=location)
+        upload_to_bigquery(df, table_name="goods_return", location=location, custom_schema_map=custom_schema)
 
         # Delete file
         os.remove(downloaded_file)

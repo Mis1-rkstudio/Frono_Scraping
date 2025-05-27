@@ -1,46 +1,35 @@
 import pandas as pd
 import re
-from datetime import datetime
-import dateutil.parser
+from dateutil import parser
+
+
+# def robust_parse_date(date_str):
+#     if pd.isna(date_str) or str(date_str).strip() == "":
+#         return pd.NaT
+#     try:
+#         return parser.parse(str(date_str), dayfirst=True)
+#     except Exception:
+#         return pd.NaT
+
+# def standardize_all_dates(df):
+#     for col in df.columns:
+#         try:
+#             if (
+#                 df[col].dtype == 'object'
+#                 and df[col].str.contains(r'\d{2,4}[-/]\d{1,2}[-/]\d{1,4}', na=False).any()
+#             ):
+#                 # Parse with dayfirst format
+#                 df.loc[:, col] = pd.to_datetime(df[col], errors='coerce', dayfirst=True)
+
+#                 # Convert to native Python date (for BigQuery compatibility)
+#                 df.loc[:, col] = df[col].dt.date
+#         except Exception as e:
+#             print(f"[X] Error processing column '{col}': {e}")
+#     return df
 
 
 
-# Helper functions
-def robust_parse_date(date_str):
-    """
-    Attempt to parse date_str using several candidate formats.
-    If none of the formats work, fall back to dateutil.parser with dayfirst=True.
-    Returns a datetime object or pd.NaT if parsing fails.
-    """
-    if pd.isna(date_str) or str(date_str).strip() == "":
-        return pd.NaT
 
-    # List of candidate formats to try explicitly.
-    # Adjust or add formats as needed.
-    formats = [
-        '%a %b %d %Y %H:%M:%S GMT%z (%Z)',  # e.g., "Tue May 07 2024 00:00:00 GMT-0700 (Pacific Daylight Time)"
-        '%d/%m/%Y',                         # e.g., "17/07/2024"
-        '%Y-%m-%d'                          # e.g., "2024-07-17" (ISO)
-    ]
-    
-    for fmt in formats:
-        try:
-            return datetime.strptime(date_str, fmt)
-        except Exception:
-            continue
-
-    # Fallback: try dateutil's parser (with dayfirst=True to handle dd/mm/yyyy cases)
-    try:
-        return dateutil.parser.parse(date_str, dayfirst=True)
-    except Exception:
-        return pd.NaT
-
-def format_dates(df, date_cols):
-    """Parses and standardizes date columns in YYYY-MM-DD format."""
-    for col in date_cols:
-        if col in df.columns:
-            df[col] = df[col].apply(robust_parse_date).dt.strftime("%Y-%m-%d")
-    return df
 
 def standardize_column_names(df):
     """Standardizes column names by replacing spaces, slashes, dashes, and trailing dots."""
@@ -52,31 +41,34 @@ def standardize_column_names(df):
     )
     return df
 
-def clean_dataframe(df, drop_last_row=False, drop_first_col=False, filter_col=None, filter_values=None):
-    """Cleans dataframe by dropping empty/unnamed columns, removing unwanted rows, and optionally dropping first column or last row."""
+# def clean_dataframe(df, drop_last_row=False, drop_first_col=False, filter_col=None, filter_values=None):
+#     """Cleans dataframe by dropping empty/unnamed columns, removing unwanted rows, and optionally dropping first column or last row."""
     
-    # ✅ Drop completely empty and unnamed columns
-    df.dropna(axis=1, how="all", inplace=True)
-    df = df.loc[:, ~df.columns.str.contains("^Unnamed")]
+#     # ✅ Drop completely empty and unnamed columns
+#     df.dropna(axis=1, how="all", inplace=True)
+#     df = df.loc[:, ~df.columns.str.contains("^Unnamed")]
     
-    # ✅ Drop specific rows based on column values
-    if filter_col and filter_values:
-        df = df[~df[filter_col].isin(filter_values)]
+#     # ✅ Drop specific rows based on column values
+#     if filter_col and filter_values:
+#         df = df[~df[filter_col].isin(filter_values)]
     
-    # ✅ Drop last row if requested
-    if drop_last_row and len(df) > 1:
-        df = df.iloc[:-1]
+#     # ✅ Drop last row if requested
+#     if drop_last_row and len(df) > 1:
+#         df = df.iloc[:-1]
 
-    # ✅ Drop first column if requested
-    if drop_first_col:
-        df = df.iloc[:, 1:]
+#     # ✅ Drop first column if requested
+#     if drop_first_col:
+#         df = df.iloc[:, 1:]
 
-    return df.reset_index(drop=True)
+#     return df.reset_index(drop=True)
 
-def clean_filename(file_name):
-    file_name = re.sub(r"\s*\(\d+\)", "", file_name)  # Remove (2), (copy)
-    file_name = re.sub(r"[^\w\s_.-]", "", file_name)  # Remove special characters
-    return file_name.replace(" ", "_").lower()
+# def clean_filename(file_name):
+#     file_name = re.sub(r"\s*\(\d+\)", "", file_name)  # Remove (2), (copy)
+#     file_name = re.sub(r"[^\w\s_.-]", "", file_name)  # Remove special characters
+#     return file_name.replace(" ", "_").lower()
+
+
+
 
 def modify_sales_report_dataframe(df):
     print("🛠 Modifying Sales Report...")
@@ -118,10 +110,10 @@ def modify_sales_report_dataframe(df):
     # df["Date"] = pd.to_datetime(df["Date"], errors='coerce').dt.strftime('%Y-%m-%d')
 
     # Apply the robust parser function to your "Date" column
-    df["Date"] = df["Date"].apply(robust_parse_date)
+    # df["Date"] = df["Date"].apply(robust_parse_date)
 
     # Convert to standardized string format YYYY-MM-DD
-    df["Date"] = df["Date"].dt.strftime('%Y-%m-%d')
+    # df["Date"] = df["Date"].dt.strftime('%d-%m-%Y')
 
     # Drop rows where 'Date' column has value 'Total'
     df = df[df["Date"] != "Total"]
@@ -134,6 +126,7 @@ def modify_sales_report_dataframe(df):
 
     # ✅ Replace spaces and "/" in column names with underscores
     df = standardize_column_names(df)
+    # df = standardize_all_dates(df)
 
     # Reset index
     df.reset_index(drop=True, inplace=True)
@@ -165,7 +158,9 @@ def modify_order_dataframe(df):
     df = df[df["SO_No"].notna() & (df["SO_No"].astype(str).str.strip() != "")]
 
     # ✅ Convert 'SO Date' to proper datetime format
-    df["SO_Date"] = pd.to_datetime(df["SO_Date"], format="%d/%m/%Y", errors='coerce')
+    # df["SO_Date"] = pd.to_datetime(df["SO_Date"], format="%d/%m/%Y", errors='coerce')
+
+    # df = standardize_all_dates(df)
 
     # ✅ Reset index
     df.reset_index(drop=True, inplace=True)
@@ -196,13 +191,13 @@ def modify_sales_invoice_dataframe(df):
 
     # ✅ Replace spaces and "/" in column names with underscores
     df = standardize_column_names(df)
+    df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
 
     # ✅ Drop columns where the header is blank
     df = df.loc[:, df.columns.str.strip() != ""]
 
     # ✅ Drop the last row
     df = df.iloc[:-1]
-
 
     # ✅ Convert all data to string
     df = df.astype(str)
@@ -237,6 +232,7 @@ def modify_pending_po(df):
         df = df.dropna(subset=["Item_Name"])
 
     df = standardize_column_names(df)
+    # df = standardize_all_dates(df)
 
     # Convert all data to string
     df = df.astype(str)
@@ -249,7 +245,7 @@ def modify_valuation_dataframe(df):
 
     # Replace spaces and "/" in column names with underscores.
     df = standardize_column_names(df)
-
+    # df = standardize_all_dates(df)
 
     # Drop the last row
     df = df.iloc[:-1]
@@ -265,6 +261,7 @@ def modify_sales_order_dataframe(df):
     # Replace spaces and "/" in column names with underscores.
     df.columns = df.columns.str.replace(" ", "_").str.replace("/", "_").str.replace("#", "column_n").str.replace("[", "").str.replace("]", "")
 
+    # df = standardize_all_dates(df)
 
     # Drop the last row
     df = df.iloc[:-1]
@@ -328,8 +325,6 @@ def modify_customer_dataframe(df):
 
     # The DataFrame df is now cleaned
 
-
-    
     # Extract numeric values from Outstanding and create a Type column
     df_extracted["Type"] = df_extracted["Outstanding"].str.extract(r"(Cr|Dr)$")  # Extract "Cr" or "Dr"
     df_extracted["Type"] = df_extracted["Type"].map({"Cr": "Credit", "Dr": "Debit"})  # Map to full words
@@ -364,7 +359,8 @@ def modify_gr_report(df):
     df_cleaned = df_cleaned[~df_cleaned['Customer Name'].astype(str).str.contains('Total', na=False)]
 
     # Step 3: Standardize Date Format in "CN Date"
-    df_cleaned['CN Date'] = pd.to_datetime(df_cleaned['CN Date'], errors='coerce', dayfirst=True)
+    # df_cleaned['CN Date'] = pd.to_datetime(df_cleaned['CN Date'], errors='coerce', dayfirst=True)
+    # df = standardize_all_dates(df)
 
     # Step 4: Ensure "Qty" and "Amount" are numeric
     df_cleaned['Qty'] = pd.to_numeric(df_cleaned['Qty'], errors='coerce')
@@ -400,6 +396,9 @@ def modify_purchase_invoice_dataframe(df):
     # ✅ Replace spaces and "/" in column names with underscores
     df.columns = df.columns.str.replace(" ", "_").str.replace("/", "_")
 
+    # Drop unnamed columns
+    df = df.loc[:, ~df.columns.str.contains('Unnamed:_0')]
+
     # ✅ Drop columns where the header is blank
     df = df.loc[:, df.columns.str.strip() != ""]
 
@@ -407,15 +406,17 @@ def modify_purchase_invoice_dataframe(df):
     if "Date" in df.columns:
         # Drop rows where 'Date' is either NaN or empty string
         df = df[~(df['Date'].isna() | (df['Date'].astype(str).str.strip() == ''))]
+        # df = standardize_all_dates(df)
     else:
         raise ValueError("The 'Date' column does not exist in the provided file.")
+    
 
     # ✅ Convert all data to string
     df = df.astype(str)
     df.reset_index(drop=True, inplace=True)
 
     return df
-
+ 
 def modify_account_payable_dataframe(df):
     print("🛠 Modifying Account Payable Report...")
 
@@ -436,6 +437,7 @@ def modify_account_payable_dataframe(df):
     else:
         raise ValueError("The 'Vendor Name' column does not exist in the provided file.")
 
+    
     # ✅ Convert all data to string
     df = df.astype(str)
 
@@ -485,272 +487,6 @@ def modify_account_receivable_dataframe(df):
     
     # Clean customer_name to remove anything starting from '['
     df['customer_name'] = df['customer_name'].apply(lambda x: re.split(r'\[', str(x))[0].strip())
-
+    # df = standardize_all_dates(df)
 
     return df
-
-
-
-def robust_date_parse(x, fallback_date=None):
-    """
-    Attempts to parse a date string using several common formats.
-    If x is missing (NaN, empty, or a variant of 'nan'), returns fallback_date if provided,
-    otherwise returns pd.NaT.
-    """
-    # Check for missing/empty values.
-    if pd.isna(x) or str(x).strip() in ["", "nan", "NaN", "NAN"]:
-        return fallback_date if fallback_date is not None else pd.NaT
-
-    # List of possible date formats to try.
-    possible_formats = [
-        '%d-%m-%Y',
-        '%d/%m/%Y',
-        '%Y-%m-%d',
-        '%Y/%m/%d'
-    ]
-    
-    for fmt in possible_formats:
-        try:
-            return pd.to_datetime(x, format=fmt)
-        except Exception:
-            continue
-
-    # Fallback: try a generic parse with dayfirst=True.
-    try:
-        return pd.to_datetime(x, dayfirst=True, errors='coerce')
-    except Exception:
-        return fallback_date if fallback_date is not None else pd.NaT
-
-def modify_jobcard_dataframe(df):
-    print("🛠 Modifying Vastra Production Report...")
-
-    # 1. Clean column names: replace spaces and "/" with underscores.
-    # df.columns = df.columns.str.replace(" ", "_").str.replace("/", "_")
-    
-    df.columns = (
-    df.columns
-      .str.replace(" ", "_")
-      .str.replace("/", "_")
-      .str.replace(r'\.$', '', regex=True)  # Remove trailing period(s)
-      )
-    # df = df.astype(str)
-    # 2. Process date columns:
-    # Get today's date (as a datetime) using DD-MM-YYYY format.
-    today_str = datetime.today().strftime('%d-%m-%Y')
-    today = pd.to_datetime(today_str, format='%d-%m-%Y')
-
-    # (a) Expected_Date: robustly parse and create a new column Expected_Date_mod.
-    if "Expected_Date" in df.columns:
-        def parse_expected_date(x):
-            # Use today's date if x is missing, empty, or 'nan'
-            return robust_date_parse(x, fallback_date=today)
-        
-        df["Expected_Date_mod"] = df["Expected_Date"].apply(parse_expected_date)
-    
-        # Also, update the original Expected_Date column using robust parsing.
-        df["Expected_Date"] = df["Expected_Date"].apply(lambda x: robust_date_parse(x))
-    
-    # (b) Date: Convert to datetime using robust parsing.
-    if "Date" in df.columns:
-        df["Date"] = df["Date"].apply(lambda x: robust_date_parse(x))
-    
-    # (c) First_Received_Date: Convert to datetime using robust parsing.
-    if "First_Received_Date" in df.columns:
-        df["First_Received_Date"] = df["First_Received_Date"].apply(lambda x: robust_date_parse(x))
-    
-    # (d) Last_Received_Date: Convert to datetime using robust parsing.
-    if "Last_Received_Date" in df.columns:
-        df["Last_Received_Date"] = df["Last_Received_Date"].apply(lambda x: robust_date_parse(x))
-    
-    # 3. Process numeric columns:
-
-    # 4. Create new columns using coalesce logic.
-    # Helper function: returns the first non-null, non-empty value.
-    def coalesce(col1, col2):
-        # Replace empty strings with NA and then fill missing values.
-        return col1.replace('', pd.NA).fillna(col2)
-    
-    # (a) Coalesce(Material_Name, Design_Name) -> new column: Material_Design
-    if "Material_Name" in df.columns and "Design_Name" in df.columns:
-        df["Material_Design"] = coalesce(df["Material_Name"], df["Design_Name"])
-    elif "Material_Name" in df.columns:
-        df["Material_Design"] = df["Material_Name"]
-    elif "Design_Name" in df.columns:
-        df["Material_Design"] = df["Design_Name"]
-    
-    # (b) Coalesce(Color, Color_Name) -> new column: Final_Color
-    if "Color" in df.columns and "Color_Name" in df.columns:
-        df["Final_Color"] = coalesce(df["Color"], df["Color_Name"])
-    elif "Color" in df.columns:
-        df["Final_Color"] = df["Color"]
-    elif "Color_Name" in df.columns:
-        df["Final_Color"] = df["Color_Name"]
-    
-    # (c) Coalesce(Qty, Color_qty) -> new column: Final_Qty
-    if "Qty" in df.columns and "Color_qty" in df.columns:
-        df["Final_Qty"] = coalesce(df["Qty"], df["Color_qty"])
-    elif "Qty" in df.columns:
-        df["Final_Qty"] = df["Qty"]
-    elif "Color_qty" in df.columns:
-        df["Final_Qty"] = df["Color_qty"]
-    
-    # (d) Coalesce(Unit, Color_Unit) -> new column: Final_Unit
-    if "Unit" in df.columns and "Color_Unit" in df.columns:
-        df["Final_Unit"] = coalesce(df["Unit"], df["Color_Unit"])
-    elif "Unit" in df.columns:
-        df["Final_Unit"] = df["Unit"]
-    elif "Color_Unit" in df.columns:
-        df["Final_Unit"] = df["Color_Unit"]
-    
-    # Convert both columns to numeric and replace missing values with 0.
-    if "Remaining_Design_Qty" in df.columns:
-        df["Remaining_Design_Qty"] = pd.to_numeric(df["Remaining_Design_Qty"].replace('', None), errors='coerce').fillna(0)
-    if "Remaining_Material_Qty" in df.columns:
-        df["Remaining_Material_Qty"] = pd.to_numeric(df["Remaining_Material_Qty"].replace('', None), errors='coerce').fillna(0)
-
-    # Coalesce the two columns.
-    if "Remaining_Material_Qty" in df.columns and "Remaining_Design_Qty" in df.columns:
-        df["Final_Remain_Qty"] = df["Remaining_Material_Qty"].combine_first(df["Remaining_Design_Qty"]).fillna(0)
-    elif "Remaining_Material_Qty" in df.columns:
-        df["Final_Remain_Qty"] = df["Remaining_Material_Qty"]
-    elif "Remaining_Design_Qty" in df.columns:
-        df["Final_Remain_Qty"] = df["Remaining_Design_Qty"]
-    
-    df.reset_index(drop=True, inplace=True)
-    return df
-
-def modify_jobcard_sample_dataframe(df):
-    print("🛠 Modifying Vastra Sample Report...")
-
-    # 1. Clean column names: replace spaces and "/" with underscores.
-    # df.columns = df.columns.str.replace(" ", "_").str.replace("/", "_")
-    
-    df.columns = (
-    df.columns
-      .str.replace(" ", "_")
-      .str.replace("/", "_")
-      .str.replace(r'\.$', '', regex=True)  # Remove trailing period(s)
-      )
-    # df = df.astype(str)
-    # 2. Process date columns:
-    # Get today's date (as a datetime) using DD-MM-YYYY format.
-    today_str = datetime.today().strftime('%d-%m-%Y')
-    today = pd.to_datetime(today_str, format='%d-%m-%Y')
-
-    # (a) Expected_Date: robustly parse and create a new column Expected_Date_mod.
-    if "Expected_Date" in df.columns:
-        def parse_expected_date(x):
-            # Use today's date if x is missing, empty, or 'nan'
-            return robust_date_parse(x, fallback_date=today)
-        
-        df["Expected_Date_mod"] = df["Expected_Date"].apply(parse_expected_date)
-    
-        # Also, update the original Expected_Date column using robust parsing.
-        df["Expected_Date"] = df["Expected_Date"].apply(lambda x: robust_date_parse(x))
-    
-    # (b) Date: Convert to datetime using robust parsing.
-    if "Date" in df.columns:
-        df["Date"] = df["Date"].apply(lambda x: robust_date_parse(x))
-    
-    # (c) First_Received_Date: Convert to datetime using robust parsing.
-    if "First_Received_Date" in df.columns:
-        df["First_Received_Date"] = df["First_Received_Date"].apply(lambda x: robust_date_parse(x))
-    
-    # (d) Last_Received_Date: Convert to datetime using robust parsing.
-    if "Last_Received_Date" in df.columns:
-        df["Last_Received_Date"] = df["Last_Received_Date"].apply(lambda x: robust_date_parse(x))
-    
-    # 3. Process numeric columns:
-
-    # 4. Create new columns using coalesce logic.
-    # Helper function: returns the first non-null, non-empty value.
-    def coalesce(col1, col2):
-        # Replace empty strings with NA and then fill missing values.
-        return col1.replace('', pd.NA).fillna(col2)
-    
-    # (a) Coalesce(Material_Name, Design_Name) -> new column: Material_Design
-    if "Material_Name" in df.columns and "Design_Name" in df.columns:
-        df["Material_Design"] = coalesce(df["Material_Name"], df["Design_Name"])
-    elif "Material_Name" in df.columns:
-        df["Material_Design"] = df["Material_Name"]
-    elif "Design_Name" in df.columns:
-        df["Material_Design"] = df["Design_Name"]
-    
-    # (b) Coalesce(Color, Color_Name) -> new column: Final_Color
-    if "Color" in df.columns and "Color_Name" in df.columns:
-        df["Final_Color"] = coalesce(df["Color"], df["Color_Name"])
-    elif "Color" in df.columns:
-        df["Final_Color"] = df["Color"]
-    elif "Color_Name" in df.columns:
-        df["Final_Color"] = df["Color_Name"]
-    
-    # (c) Coalesce(Qty, Color_qty) -> new column: Final_Qty
-    if "Qty" in df.columns and "Color_qty" in df.columns:
-        df["Final_Qty"] = coalesce(df["Qty"], df["Color_qty"])
-    elif "Qty" in df.columns:
-        df["Final_Qty"] = df["Qty"]
-    elif "Color_qty" in df.columns:
-        df["Final_Qty"] = df["Color_qty"]
-    
-    # (d) Coalesce(Unit, Color_Unit) -> new column: Final_Unit
-    if "Unit" in df.columns and "Color_Unit" in df.columns:
-        df["Final_Unit"] = coalesce(df["Unit"], df["Color_Unit"])
-    elif "Unit" in df.columns:
-        df["Final_Unit"] = df["Unit"]
-    elif "Color_Unit" in df.columns:
-        df["Final_Unit"] = df["Color_Unit"]
-    
-    # Convert both columns to numeric and replace missing values with 0.
-    if "Remaining_Design_Qty" in df.columns:
-        df["Remaining_Design_Qty"] = pd.to_numeric(df["Remaining_Design_Qty"].replace('', None), errors='coerce').fillna(0)
-    if "Remaining_Material_Qty" in df.columns:
-        df["Remaining_Material_Qty"] = pd.to_numeric(df["Remaining_Material_Qty"].replace('', None), errors='coerce').fillna(0)
-
-    # Coalesce the two columns.
-    if "Remaining_Material_Qty" in df.columns and "Remaining_Design_Qty" in df.columns:
-        df["Final_Remain_Qty"] = df["Remaining_Material_Qty"].combine_first(df["Remaining_Design_Qty"]).fillna(0)
-    elif "Remaining_Material_Qty" in df.columns:
-        df["Final_Remain_Qty"] = df["Remaining_Material_Qty"]
-    elif "Remaining_Design_Qty" in df.columns:
-        df["Final_Remain_Qty"] = df["Remaining_Design_Qty"]
-    
-    df.reset_index(drop=True, inplace=True)
-    return df
-
-def modify_sample_invoice_dataframe(df):
-    # Load your raw data
-    # Example: df = pd.read_excel('yourfile.xlsx')
-    df = pd.read_clipboard()  # For quick testing if you copied the data
-
-    # Create an empty list to hold customer names
-    customer_names = []
-
-    # Variable to track the current customer name
-    current_customer = None
-
-    # Loop through each row to detect and assign customer name
-    for idx, row in df.iterrows():
-        # If only the first column has value and others are empty
-        if pd.notna(row.iloc[0]) and row.iloc[1:].isnull().all():
-            current_customer = row.iloc[0]
-        customer_names.append(current_customer)
-
-    # Add the new "Customer Name" column
-    df['Customer Name'] = customer_names
-
-    # Optional: Remove the rows which are only customer titles (if you don't want them in final output)
-    df = df[~((df.iloc[:, 1:].isnull()).all(axis=1))]
-    df = df[df.iloc[:, 0] != 'Total']
-
-    # Drop the unwanted 'Unnamed: 1' column if it exists
-    if 'Unnamed: 1' in df.columns:
-        df = df.drop(columns=['Unnamed: 1'])
-
-    # Reorder columns if needed (put Customer Name first)
-    cols = ['Customer Name'] + [col for col in df.columns if col != 'Customer Name']
-    df = df[cols]
-
-    # Save to Excel/CSV
-    # df.to_excel('output.xlsx', index=False)
-
-    print(df)

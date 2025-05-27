@@ -57,8 +57,13 @@ def getPurchasePendingOrderPrevious(location):
         df = modify_pending_po(df)
         df.to_excel(downloaded_file, index=False)
         
+        custom_schema = {
+            "PO_Date": "DATE",
+            "Last_Delivery_Date": "DATE",
+        }
+
         # Upload to BigQuery
-        upload_to_bigquery(df, dataset_id="frono", table_name="purchase_pending", location=location)
+        upload_to_bigquery(df, dataset_id="frono", table_name="purchase_pending", location=location, custom_schema_map=custom_schema)
 
         # Delete file
         os.remove(downloaded_file)

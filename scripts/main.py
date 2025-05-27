@@ -20,8 +20,8 @@ def run_all_reports():
         print(f"\n📍 Running automation for: {location.upper()}")
 
         results = {
-            "Purchase Pending Order": getPurchasePendingOrderThis(location),
-            "Purchase Pending Order": getPurchasePendingOrderPrevious(location),
+            "Purchase Pending Order This": getPurchasePendingOrderThis(location),
+            "Purchase Pending Order Previous": getPurchasePendingOrderPrevious(location),
             "Sales Invoice": getSalesInvoice(location),
             "Sales Order Details": getSalesOrderDetails(location),
             "Sales Pending Order": getSalesPendingOrder(location),

@@ -188,10 +188,11 @@ def modify_stock_dataframe(df):
 
 def modify_sales_invoice_dataframe(df):
     print("🛠 Modifying Sales Invoice Data...")
+    # print all the column names
+    df = df.drop(columns=["Unnamed: 0"])
 
     # ✅ Replace spaces and "/" in column names with underscores
     df = standardize_column_names(df)
-    df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
 
     # ✅ Drop columns where the header is blank
     df = df.loc[:, df.columns.str.strip() != ""]

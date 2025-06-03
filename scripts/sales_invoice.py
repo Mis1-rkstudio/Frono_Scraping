@@ -12,8 +12,8 @@ from scripts.helper.common_utils import ensure_download_path, load_credentials, 
 from scripts.helper.fronocloud_login import login
 
 
-def getSalesInvoice(location):
-    folder = "Frono_Sales_Invoice_Report"
+def getSalesInvoiceThis(location):
+    folder = "Frono_Sales_Invoice_Report_This"
     download_path = ensure_download_path(location, folder)
     username, password = load_credentials(location)
     driver = create_driver(download_path)
@@ -25,7 +25,7 @@ def getSalesInvoice(location):
 
         log("Navigating to Invoice page...")
         time.sleep(2)
-        element = driver.find_element(By.CSS_SELECTOR, 'a[title="Invoice"][href*="/purchase/view"]')
+        element = driver.find_element(By.CSS_SELECTOR, 'a[title="Invoice"][href*="/invoice/view"]')
         driver.execute_script("arguments[0].click();", element)
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "globalSearch"))).click()
         actions.send_keys(Keys.TAB).perform()
@@ -48,12 +48,68 @@ def getSalesInvoice(location):
 
         custom_schema = {
             "Date": "DATE",
-            "Inv_Date": "DATE",
             "Created_Date": "DATE",
         }
 
         # Upload to BigQuery
         upload_to_bigquery(df, table_name="sales_invoice", location=location, custom_schema_map=custom_schema)
+
+        # Delete file
+        os.remove(downloaded_file)
+        log(f"🗑️ Deleted local file: {downloaded_file}")
+
+        return f"Success"
+
+    except Exception as e:
+        log(f"❌ Error during scraping: {e}")
+        return f"Error: {e}"
+
+    finally:
+        log("Closing browser...")
+        driver.quit()
+
+
+def getSalesInvoicePrevious(location):
+    folder = "Frono_Sales_Invoice_Report_Previous"
+    download_path = ensure_download_path(location, folder)
+    username, password = load_credentials(location)
+    driver = create_driver(download_path)
+    actions = ActionChains(driver)
+
+    try:
+        # log("Logging in to FronoCloud...")
+        login(driver, username, password)
+
+        log("Navigating to Invoice page...")
+        time.sleep(2)
+        element = driver.find_element(By.CSS_SELECTOR, 'a[title="Invoice"][href*="/invoice/view"]')
+        driver.execute_script("arguments[0].click();", element)
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "globalSearch"))).click()
+        actions.send_keys(Keys.TAB).perform()
+        driver.execute_script("arguments[0].click();", driver.switch_to.active_element)
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//a[text()='Previous Financial Year']"))).click()
+        time.sleep(2)
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "globalSearch"))).click()
+        actions.send_keys(Keys.TAB * 9 + Keys.SPACE).perform()
+        time.sleep(2)
+
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[@title='Excel']"))).click()
+        time.sleep(2)
+
+        downloaded_file = wait_for_download(download_path)
+        log(f"✅ Downloaded file saved as: {downloaded_file}")
+
+        df = load_dataframe(downloaded_file)
+
+        df = modify_sales_invoice_dataframe(df)
+
+        custom_schema = {
+            "Date": "DATE",
+            "Created_Date": "DATE",
+        }
+
+        # Upload to BigQuery
+        upload_to_bigquery(df, dataset_id="frono", table_name="sales_invoice", location=location, custom_schema_map=custom_schema)
 
         # Delete file
         os.remove(downloaded_file)

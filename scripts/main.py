@@ -8,7 +8,7 @@ from scripts.item_wise_customer_report import getItemWiseSales
 from scripts.purchase_invoice import getPurchaseInvoice
 from scripts.purchase_pending_order import getPurchasePendingOrderThis
 from scripts.purchase_pending_order2 import getPurchasePendingOrderPrevious
-from scripts.sales_invoice import getSalesInvoice
+from scripts.sales_invoice import getSalesInvoicePrevious, getSalesInvoiceThis
 from scripts.sales_order_details import getSalesOrderDetails
 from scripts.sales_pending_order import getSalesPendingOrder
 from scripts.stock import getStock
@@ -22,7 +22,8 @@ def run_all_reports():
         results = {
             "Purchase Pending Order This": getPurchasePendingOrderThis(location),
             "Purchase Pending Order Previous": getPurchasePendingOrderPrevious(location),
-            "Sales Invoice": getSalesInvoice(location),
+            "Sales Invoice This": getSalesInvoiceThis(location),
+            "Sales Invoice Previous": getSalesInvoicePrevious(location),
             "Sales Order Details": getSalesOrderDetails(location),
             "Sales Pending Order": getSalesPendingOrder(location),
             "Broker": getBroker(location),

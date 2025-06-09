@@ -1,6 +1,8 @@
 from flask import Flask
 import datetime
 import pytz
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.interval import IntervalTrigger
 
 from scripts.main import run_all_reports
 
@@ -13,6 +15,29 @@ last_run_time = None
 
 # Define IST timezone
 IST = pytz.timezone('Asia/Kolkata')
+
+def scheduled_job():
+    global last_run_time
+    now = datetime.datetime.now(IST)
+    current_hour = now.hour
+    
+    # Allow execution only between 12 PM and 9 PM IST
+    if 12 <= current_hour < 21:
+        last_run_time = datetime.datetime.now(pytz.utc)  # Save UTC time
+        run_all_reports()
+        print(f"🚀 Scheduled scraper run completed at {now.strftime('%Y-%m-%d %H:%M:%S')} IST")
+    else:
+        print(f"⏸️ Outside allowed time window (Current IST: {now.strftime('%H:%M:%S')}). Skipping scheduled run.")
+
+# Initialize the scheduler
+scheduler = BackgroundScheduler()
+scheduler.add_job(
+    func=scheduled_job,
+    trigger=IntervalTrigger(hours=2),
+    id='scraper_job',
+    name='Run scraper every 2 hours',
+    replace_existing=True
+)
 
 @app.route("/", methods=["GET"])
 def home():
@@ -45,8 +70,8 @@ def run_scraper():
     now = datetime.datetime.now(IST)
     current_hour = now.hour
 
-    # Allow execution only between 11 AM and 9 PM IST
-    if 11 <= current_hour < 21:
+    # Allow execution only between 12 PM and 9 PM IST
+    if 12 <= current_hour < 21:
         last_run_time = datetime.datetime.now(pytz.utc)  # Save UTC time
         run_all_reports()
         return f"🚀 Scraper started at {now.strftime('%Y-%m-%d %H:%M:%S')} IST", 200
@@ -54,4 +79,6 @@ def run_scraper():
         return f"⏸️ Outside allowed time window (Current IST: {now.strftime('%H:%M:%S')}). Scraper not run.", 200
 
 if __name__ == "__main__":
+    # Start the scheduler
+    scheduler.start()
     app.run(host="0.0.0.0", port=8080)

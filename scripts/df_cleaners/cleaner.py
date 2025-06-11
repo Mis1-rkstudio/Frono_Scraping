@@ -3,33 +3,6 @@ import re
 from dateutil import parser
 
 
-# def robust_parse_date(date_str):
-#     if pd.isna(date_str) or str(date_str).strip() == "":
-#         return pd.NaT
-#     try:
-#         return parser.parse(str(date_str), dayfirst=True)
-#     except Exception:
-#         return pd.NaT
-
-# def standardize_all_dates(df):
-#     for col in df.columns:
-#         try:
-#             if (
-#                 df[col].dtype == 'object'
-#                 and df[col].str.contains(r'\d{2,4}[-/]\d{1,2}[-/]\d{1,4}', na=False).any()
-#             ):
-#                 # Parse with dayfirst format
-#                 df.loc[:, col] = pd.to_datetime(df[col], errors='coerce', dayfirst=True)
-
-#                 # Convert to native Python date (for BigQuery compatibility)
-#                 df.loc[:, col] = df[col].dt.date
-#         except Exception as e:
-#             print(f"[X] Error processing column '{col}': {e}")
-#     return df
-
-
-
-
 
 def standardize_column_names(df):
     """Standardizes column names by replacing spaces, slashes, dashes, and trailing dots."""
@@ -40,32 +13,6 @@ def standardize_column_names(df):
                   .str.replace(r'\.$', '', regex=True)
     )
     return df
-
-# def clean_dataframe(df, drop_last_row=False, drop_first_col=False, filter_col=None, filter_values=None):
-#     """Cleans dataframe by dropping empty/unnamed columns, removing unwanted rows, and optionally dropping first column or last row."""
-    
-#     # ✅ Drop completely empty and unnamed columns
-#     df.dropna(axis=1, how="all", inplace=True)
-#     df = df.loc[:, ~df.columns.str.contains("^Unnamed")]
-    
-#     # ✅ Drop specific rows based on column values
-#     if filter_col and filter_values:
-#         df = df[~df[filter_col].isin(filter_values)]
-    
-#     # ✅ Drop last row if requested
-#     if drop_last_row and len(df) > 1:
-#         df = df.iloc[:-1]
-
-#     # ✅ Drop first column if requested
-#     if drop_first_col:
-#         df = df.iloc[:, 1:]
-
-#     return df.reset_index(drop=True)
-
-# def clean_filename(file_name):
-#     file_name = re.sub(r"\s*\(\d+\)", "", file_name)  # Remove (2), (copy)
-#     file_name = re.sub(r"[^\w\s_.-]", "", file_name)  # Remove special characters
-#     return file_name.replace(" ", "_").lower()
 
 
 

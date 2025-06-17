@@ -12,7 +12,7 @@ from scripts.helper.common_utils import ensure_download_path, load_credentials, 
 from scripts.helper.fronocloud_login import login
 
 
-def getSalesPendingOrder(location):
+def getSalesPendingOrderThis(location):
     folder = "Frono_Sales_Pending_Order_Report"
     download_path = ensure_download_path(location, folder)
     username, password = load_credentials(location)

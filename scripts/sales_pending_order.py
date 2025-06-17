@@ -20,7 +20,7 @@ def getSalesPendingOrderThis(location):
     actions = ActionChains(driver)
 
     try:
-        # log("Opening FronoCloud login page and logging in...")
+        log("Opening FronoCloud login page and logging in...")
         login(driver, username, password)
 
         log("Navigating to 'Customer Wise Item Details (Sales Pending Order)' report...")
@@ -41,7 +41,7 @@ def getSalesPendingOrderThis(location):
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()=' Search ']"))).click()
         time.sleep(10)
 
-        # log("Exporting to Excel...")
+        log("Exporting to Excel...")
         actions.send_keys(Keys.TAB * 8 + Keys.SPACE).perform()
 
         downloaded_file = wait_for_download(download_path)

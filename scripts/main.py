@@ -20,22 +20,22 @@ def run_all_reports():
         print(f"\n📍 Running automation for: {location.upper()}")
 
         results = {
-            # "Purchase Pending Order This": getPurchasePendingOrderThis(location),
-            # "Purchase Pending Order Previous": getPurchasePendingOrderPrevious(location),
-            # "Sales Invoice This": getSalesInvoiceThis(location),
-            # "Sales Invoice Previous": getSalesInvoicePrevious(location),
-            # "Sales Order Details Till Date": getSalesOrderDetailsTillDate(location),
-            # "Sales Pending Order This": getSalesPendingOrderThis(location),
-            # "Broker": getBroker(location),
-            # "Customer": getCustomer(location),
-            # "Goods Return": getGoodsReturn(location),
-            # "Item Wise Customer": getItemWiseSales(location),
-            # "Purchase Invoice": getPurchaseInvoice(location),
-            # "Stock Valuation": getStockValuation(location),
-            # "Account Payable": getAccountPayable(location),
-            # "Account Receivable": getAccountReceivable(location),
-            # "Account Receivable Frono": getAccountReceivableFrono(location),
-            # "Stock": getStock(location),
+            "Purchase Pending Order This": getPurchasePendingOrderThis(location),
+            "Purchase Pending Order Previous": getPurchasePendingOrderPrevious(location),
+            "Sales Invoice This": getSalesInvoiceThis(location),
+            "Sales Invoice Previous": getSalesInvoicePrevious(location),
+            "Sales Order Details Till Date": getSalesOrderDetailsTillDate(location),
+            "Sales Pending Order This": getSalesPendingOrderThis(location),
+            "Broker": getBroker(location),
+            "Customer": getCustomer(location),
+            "Goods Return": getGoodsReturn(location),
+            "Item Wise Customer": getItemWiseSales(location),
+            "Purchase Invoice": getPurchaseInvoice(location),
+            "Stock Valuation": getStockValuation(location),
+            "Account Payable": getAccountPayable(location),
+            "Account Receivable": getAccountReceivable(location),
+            "Account Receivable Frono": getAccountReceivableFrono(location),
+            "Stock": getStock(location),
         }
 
         print("\n========== Report Download Results ==========")

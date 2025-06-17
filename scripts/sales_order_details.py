@@ -12,7 +12,7 @@ from scripts.helper.common_utils import ensure_download_path, load_credentials, 
 from scripts.helper.fronocloud_login import login
 
 
-def getSalesOrderDetails(location):
+def getSalesOrderDetailsTillDate(location):
     folder = "Frono_Sales_Order_Details_Report"
     download_path = ensure_download_path(location, folder)
     username, password = load_credentials(location)
@@ -38,7 +38,7 @@ def getSalesOrderDetails(location):
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//a[text()='Till Date']"))).click()
 
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()=' Search ']"))).click()
-        time.sleep(10)
+        time.sleep(20)
 
         # log("Exporting to Excel...")
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[@title='Excel']"))).click()
@@ -71,3 +71,4 @@ def getSalesOrderDetails(location):
     finally:
         log("Closing browser...")
         driver.quit()
+

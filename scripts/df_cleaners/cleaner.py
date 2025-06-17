@@ -14,6 +14,20 @@ def standardize_column_names(df):
     )
     return df
 
+def standardize_date_column(df, column_name):
+    """
+    Standardizes a date column by replacing '/' with '-' and parsing in dd-mm-yyyy format.
+    Modifies the DataFrame in place.
+    """
+    df[column_name] = (
+        df[column_name]
+        .astype(str)
+        .str.strip()
+        .str.replace("/", "-", regex=False)
+    )
+    df[column_name] = pd.to_datetime(df[column_name], format="%d-%m-%Y", errors="coerce")
+    return df
+
 
 
 
@@ -209,7 +223,9 @@ def modify_sales_order_dataframe(df):
     # Replace spaces and "/" in column names with underscores.
     df.columns = df.columns.str.replace(" ", "_").str.replace("/", "_").str.replace("#", "column_n").str.replace("[", "").str.replace("]", "")
 
-    # df = standardize_all_dates(df)
+     # Replace all "/" with "-" in date column
+    df = standardize_date_column(df, "SO_Date")
+    df = standardize_date_column(df, "Expected_Date")
 
     # Drop the last row
     df = df.iloc[:-1]
@@ -218,6 +234,7 @@ def modify_sales_order_dataframe(df):
     df = df.astype(str)
     df.reset_index(drop=True, inplace=True)
     return df
+
 
 def modify_broker_dataframe(df):
     print("🛠 Modifying Broker Data...")

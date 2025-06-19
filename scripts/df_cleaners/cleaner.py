@@ -171,7 +171,6 @@ def modify_sales_invoice_dataframe(df):
 
 def modify_pending_po(df):
     print("🛠 Modifying Pending Purchase Order Report...")
-    
     # Rename the first column to "Customer Name"
     df.rename(columns={df.columns[0]: "Vendor Name"}, inplace=True)
     
@@ -225,6 +224,7 @@ def modify_sales_order_dataframe(df):
     # Replace spaces and "/" in column names with underscores.
     df.columns = df.columns.str.replace(" ", "_").str.replace("/", "_").str.replace("#", "column_n").str.replace("[", "").str.replace("]", "")
 
+    # print(df.columns)
      # Replace all "/" with "-" in date column
     df = standardize_date_column(df, "SO_Date")
     df = standardize_date_column(df, "Expected_Date")
@@ -419,7 +419,7 @@ def modify_account_receivable_dataframe(df):
     # ✅ Standardize column names (replace spaces, / etc.)
     df = standardize_column_names(df)
     # print(df.columns)
-    # df = standardize_date_column(df, "Last_Collection_Date")
+    df = standardize_date_column(df, "Last_Collection_Date")
 
     # Create an empty list to hold customer names
     # customer_names = []

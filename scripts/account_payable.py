@@ -48,7 +48,7 @@ def getAccountPayable(location):
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()=' Search ']"))).click()
         time.sleep(20)
         
-        # log("Exporting to Excel...")
+        log("Exporting to Excel...")
         actions.send_keys(Keys.TAB * 6 + Keys.SPACE).perform()
         time.sleep(2)
 

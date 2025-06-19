@@ -13,7 +13,7 @@ from scripts.helper.fronocloud_login import login
 
 
 def getAccountReceivableFrono(location):
-    folder = "Frono_Account_Receivable_Report"
+    folder = "Frono_Account_Receivable_Report_Previous"
     download_path = ensure_download_path(location, folder)
     username, password = load_credentials(location)
     driver = create_driver(download_path)
@@ -38,11 +38,12 @@ def getAccountReceivableFrono(location):
         driver.execute_script("arguments[0].click();", driver.switch_to.active_element)
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//a[text()='Previous Financial Year']"))).click()
 
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//button[@data-target="#detailed"]'))).click()
+        # WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//button[@data-target="#detailed"]'))).click()
+        actions.send_keys(Keys.TAB * 4 + Keys.SPACE).perform()
         time.sleep(15)
         
-        # log("Exporting to Excel...")
-        actions.send_keys(Keys.TAB * 7 + Keys.SPACE).perform()
+        log("Exporting to Excel...")
+        actions.send_keys(Keys.TAB * 9 + Keys.SPACE).perform()
         time.sleep(2)
 
         downloaded_file = wait_for_download(download_path)
@@ -53,8 +54,7 @@ def getAccountReceivableFrono(location):
         df = modify_account_receivable_dataframe(df)
 
         custom_schema = {
-            "Date": "DATE",
-            "Due_Date": "DATE",
+            "Last_Collection_Date": "DATE",
         }
 
         # Upload to BigQuery

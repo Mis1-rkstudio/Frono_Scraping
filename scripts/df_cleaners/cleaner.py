@@ -19,14 +19,15 @@ def standardize_date_column(df, column_name):
     Standardizes a date column by replacing '/' with '-' and parsing in dd-mm-yyyy format.
     Modifies the DataFrame in place.
     """
-    df[column_name] = (
+    df.loc[:, column_name] = (
         df[column_name]
         .astype(str)
         .str.strip()
         .str.replace("/", "-", regex=False)
     )
-    df[column_name] = pd.to_datetime(df[column_name], format="%d-%m-%Y", errors="coerce")
+    df.loc[:, column_name] = pd.to_datetime(df[column_name], format="%d-%m-%Y", errors="coerce")
     return df
+
 
 
 
@@ -87,7 +88,8 @@ def modify_sales_report_dataframe(df):
 
     # ✅ Replace spaces and "/" in column names with underscores
     df = standardize_column_names(df)
-    # df = standardize_all_dates(df)
+    df = standardize_date_column(df, "Date")
+
 
     # Reset index
     df.reset_index(drop=True, inplace=True)
@@ -98,6 +100,7 @@ def modify_order_dataframe(df):
     print("🛠 Modifying Sales Pending Order Dataframe...")
 
     df = standardize_column_names(df)
+    df = standardize_date_column(df, "SO_Date")
 
     # ✅ Define required columns after normalizing column names
     required_columns = [
@@ -117,9 +120,6 @@ def modify_order_dataframe(df):
 
     # ✅ Drop rows where 'so_no' is blank or NaN
     df = df[df["SO_No"].notna() & (df["SO_No"].astype(str).str.strip() != "")]
-
-    # ✅ Convert 'SO Date' to proper datetime format
-    # df["SO_Date"] = pd.to_datetime(df["SO_Date"], format="%d/%m/%Y", errors='coerce')
 
     # df = standardize_all_dates(df)
 
@@ -154,6 +154,8 @@ def modify_sales_invoice_dataframe(df):
 
     # ✅ Replace spaces and "/" in column names with underscores
     df = standardize_column_names(df)
+    df = standardize_date_column(df, "Date")
+    df = standardize_date_column(df, "Created_Date")
 
     # ✅ Drop columns where the header is blank
     df = df.loc[:, df.columns.str.strip() != ""]
@@ -169,7 +171,6 @@ def modify_sales_invoice_dataframe(df):
 
 def modify_pending_po(df):
     print("🛠 Modifying Pending Purchase Order Report...")
-    
     # Rename the first column to "Customer Name"
     df.rename(columns={df.columns[0]: "Vendor Name"}, inplace=True)
     
@@ -194,7 +195,8 @@ def modify_pending_po(df):
         df = df.dropna(subset=["Item_Name"])
 
     df = standardize_column_names(df)
-    # df = standardize_all_dates(df)
+    df = standardize_date_column(df, "PO_Date")
+    df = standardize_date_column(df, "Last_Delivery_Date")
 
     # Convert all data to string
     df = df.astype(str)
@@ -207,7 +209,6 @@ def modify_valuation_dataframe(df):
 
     # Replace spaces and "/" in column names with underscores.
     df = standardize_column_names(df)
-    # df = standardize_all_dates(df)
 
     # Drop the last row
     df = df.iloc[:-1]
@@ -223,6 +224,7 @@ def modify_sales_order_dataframe(df):
     # Replace spaces and "/" in column names with underscores.
     df.columns = df.columns.str.replace(" ", "_").str.replace("/", "_").str.replace("#", "column_n").str.replace("[", "").str.replace("]", "")
 
+    # print(df.columns)
      # Replace all "/" with "-" in date column
     df = standardize_date_column(df, "SO_Date")
     df = standardize_date_column(df, "Expected_Date")
@@ -416,42 +418,46 @@ def modify_account_receivable_dataframe(df):
 
     # ✅ Standardize column names (replace spaces, / etc.)
     df = standardize_column_names(df)
+    # print(df.columns)
+    df = standardize_date_column(df, "Last_Collection_Date")
 
     # Create an empty list to hold customer names
-    customer_names = []
-    current_customer = None
+    # customer_names = []
+    # current_customer = None
 
     # Loop through each row to detect and assign customer name
-    for idx, row in df.iterrows():
-        if pd.notna(row.iloc[0]) and row.iloc[1:].isnull().all():
-            current_customer = row.iloc[0]
-        customer_names.append(current_customer)
+    # for idx, row in df.iterrows():
+        # if pd.notna(row.iloc[0]) and row.iloc[1:].isnull().all():
+            # current_customer = row.iloc[0]
+        # customer_names.append(current_customer)
 
     # Add the new "customer_name" column
-    df['customer_name'] = customer_names
+    # df['customer_name'] = customer_names
 
     # Remove rows which are only customer titles or 'Total'
     df = df[~((df.iloc[:, 1:].isnull()).all(axis=1))]
     df = df[df.iloc[:, 0] != 'Total']
 
     # Drop unwanted columns
+    if 'Unnamed:_0' in df.columns:
+        df = df.drop(columns=['Unnamed:_0'])
+
     if 'Unnamed:_1' in df.columns:
         df = df.drop(columns=['Unnamed:_1'])
 
     # Drop rows where Total_Amt is blank or null
-    if 'Total_Amt' in df.columns:
-        df = df[df['Total_Amt'].notna()]
+    # if 'Total_Amt' in df.columns:
+    #     df = df[df['Total_Amt'].notna()]
 
-    # Drop rows where Date == "Grand Total"
-    if 'Date' in df.columns:
-        df = df[df['Date'] != 'Grand Total']
+    # Drop rows where Broker == "Total"
+    if 'Broker' in df.columns:
+        df = df[df['Broker'] != 'Total']
 
     # Reorder columns (customer_name first)
-    cols = ['customer_name'] + [col for col in df.columns if col != 'customer_name']
-    df = df[cols]
+    # cols = ['customer_name'] + [col for col in df.columns if col != 'customer_name']
+    # df = df[cols]
     
     # Clean customer_name to remove anything starting from '['
-    df['customer_name'] = df['customer_name'].apply(lambda x: re.split(r'\[', str(x))[0].strip())
-    # df = standardize_all_dates(df)
+    # df['customer_name'] = df['customer_name'].apply(lambda x: re.split(r'\[', str(x))[0].strip())
 
     return df

@@ -20,8 +20,12 @@ def scheduled_job():
     global last_run_time
     now = datetime.datetime.now(IST)
     current_hour = now.hour
+    current_weekday = now.weekday()  # Monday=0, Sunday=6
     
-    # Allow execution only between 12 PM and 9 PM IST
+    # Allow execution only between 12 PM and 9 PM IST and not on weekends
+    if current_weekday in [5, 6]:
+        print(f"⏸️ Today is a weekend (Saturday/Sunday). Skipping scheduled run.")
+        return
     if 12 <= current_hour < 21:
         last_run_time = datetime.datetime.now(pytz.utc)  # Save UTC time
         run_all_reports()
@@ -69,8 +73,11 @@ def run_scraper():
 
     now = datetime.datetime.now(IST)
     current_hour = now.hour
+    current_weekday = now.weekday()  # Monday=0, Sunday=6
 
-    # Allow execution only between 12 PM and 9 PM IST
+    # Allow execution only between 12 PM and 9 PM IST and not on weekends
+    if current_weekday in [5, 6]:
+        return f"⏸️ Today is a weekend (Saturday/Sunday). Scraper not run.", 200
     if 12 <= current_hour < 21:
         last_run_time = datetime.datetime.now(pytz.utc)  # Save UTC time
         run_all_reports()

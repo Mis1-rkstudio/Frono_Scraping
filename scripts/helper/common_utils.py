@@ -168,7 +168,7 @@ def upload_to_bigquery(df, table_name, dataset_id="frono_2025", location="kolkat
         for col, col_type in custom_schema_map.items():
             if col_type == "DATE" and col in df.columns:
                 try:
-                    df[col] = pd.to_datetime(df[col], errors='coerce').dt.date
+                    df[col] = pd.to_datetime(df[col], format="%d-%m-%Y",errors='coerce').dt.date
                     log(f"🗓️ Converted column '{col}' to date (via custom_schema_map)")
                 except Exception as e:
                     log(f"⚠️ Could not convert {col} to date: {str(e)}")

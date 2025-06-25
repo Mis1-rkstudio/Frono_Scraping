@@ -51,12 +51,8 @@ def getSalesPendingOrderThis(location):
 
         df = modify_order_dataframe(df)
 
-        custom_schema = {
-            "SO_Date": "DATE",
-        }
-
         # Upload to BigQuery
-        upload_to_bigquery(df, table_name="sales_pending", location=location, custom_schema_map=custom_schema)
+        upload_to_bigquery(df, table_name="sales_pending", location=location)
 
         # # Delete file
         os.remove(downloaded_file)

@@ -40,7 +40,6 @@ def getCustomer(location):
         df = load_dataframe(downloaded_file)
 
         df = modify_customer_dataframe(df)
-
         
         # Upload to BigQuery
         upload_to_bigquery(df, dataset_id="frono", table_name="customer", location=location)

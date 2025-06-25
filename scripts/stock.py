@@ -45,10 +45,10 @@ def getStock(location):
         driver.execute_script("arguments[0].click();", driver.switch_to.active_element)
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//a[text()='Till Date']"))).click()
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()=' Search ']"))).click()
-        time.sleep(20)
+        time.sleep(18)
 
         log("Exporting to Excel...")
-        actions.send_keys(Keys.TAB * 11 + Keys.SPACE).perform()
+        actions.send_keys(Keys.TAB * 12 + Keys.SPACE).perform()
         time.sleep(2)
 
         downloaded_file = wait_for_download(download_path)
@@ -59,7 +59,7 @@ def getStock(location):
         df = modify_stock_dataframe(df)
 
         # Upload to BigQuery
-        upload_to_bigquery(df, dataset_id="frono", table_name="stock", location=location)
+        upload_to_bigquery(df, table_name="stock", location=location)
 
         # Delete file
         os.remove(downloaded_file)

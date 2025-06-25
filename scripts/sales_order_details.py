@@ -20,7 +20,7 @@ def getSalesOrderDetailsTillDate(location):
     actions = ActionChains(driver)
 
     try:
-        # log("Logging in to FronoCloud...")
+        log("Logging in to FronoCloud...")
         login(driver, username, password)
 
         log("Navigating to 'Customer Wise Details Report'...")
@@ -40,7 +40,7 @@ def getSalesOrderDetailsTillDate(location):
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()=' Search ']"))).click()
         time.sleep(20)
 
-        # log("Exporting to Excel...")
+        log("Exporting to Excel...")
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[@title='Excel']"))).click()
         
         downloaded_file = wait_for_download(download_path)
@@ -50,13 +50,8 @@ def getSalesOrderDetailsTillDate(location):
 
         df = modify_sales_order_dataframe(df)
 
-        custom_schema = {
-            "SO_Date": "DATE",
-            "Expected_Date": "DATE",
-        }
-
         # Upload to BigQuery
-        upload_to_bigquery(df, dataset_id="frono", table_name="sales_order_details", location=location, custom_schema_map=custom_schema)
+        upload_to_bigquery(df, dataset_id="frono", table_name="sales_order_details", location=location)
 
         # Delete file
         os.remove(downloaded_file)

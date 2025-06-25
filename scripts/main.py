@@ -17,8 +17,6 @@ from scripts.stock import getStock
 
 def run_all_reports():
     for location in ["kolkata", "surat"]:
-    # for location in ["kolkata"]:
-    # for location in ["surat"]:
         print(f"\n📍 Running automation for: {location.upper()}")
 
         results = {
@@ -35,8 +33,8 @@ def run_all_reports():
             "Purchase Invoice": getPurchaseInvoice(location),
             "Stock Valuation": getStockValuation(location),
             "Account Payable": getAccountPayable(location),
-            "Account Receivable": getAccountReceivable(location),
-            "Account Receivable Frono": getAccountReceivableFrono(location),
+            "Account Receivable": getAccountReceivable(location),         
+            # "Account Receivable Frono": getAccountReceivableFrono(location),         # Only uncomment this if there is an option to select date range in frono
             "Stock": getStock(location),
         }
 

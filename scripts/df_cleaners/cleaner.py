@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import re
 from dateutil import parser
@@ -171,22 +172,29 @@ def modify_sales_invoice_dataframe(df):
 
 def modify_pending_po(df):
     print("🛠 Modifying Pending Purchase Order Report...")
-    # Rename the first column to "Customer Name"
-    df.rename(columns={df.columns[0]: "Vendor Name"}, inplace=True)
     
-    # Function to fill down only non-numeric customer names
-    def fill_down_non_numeric(df, column):
-        last_value = None
-        for index, row in df.iterrows():
-            if pd.notna(row[column]) and not str(row[column]).isdigit():
-                last_value = row[column]
-            elif last_value is not None and (pd.isna(row[column]) or str(row[column]).isdigit()):
-                df.at[index, column] = last_value
-        return df
-    
-    # Apply fill down logic
-    df = fill_down_non_numeric(df, "Vendor Name")
-    # print(df.columns)
+
+    # Rename the first column to 'Vendor Name'
+    df.rename(columns={df.columns[0]: 'Vendor Name'}, inplace=True)
+
+    # Force Vendor Name column to 'object' type to mix strings and ints
+    df['Vendor Name'] = df['Vendor Name'].astype('object')
+
+    # Track the last seen string
+    last_str = None
+
+    # print(df["Vendor Name"])
+    # print("Index values:", df.index)
+
+    print(df['Color'])
+
+    # Replace int values with last seen string
+    for i in df.index:
+        val = df.at[i, 'Vendor Name']
+        if isinstance(val, str):
+            last_str = val
+        elif isinstance(val, int):
+            df.at[i, 'Vendor Name'] = last_str
 
     # Drop rows where "Item Name" is blank
     try:
@@ -201,8 +209,9 @@ def modify_pending_po(df):
     # Convert all data to string
     df = df.astype(str)
     df.reset_index(drop=True, inplace=True)
-    
+
     return df
+
 
 def modify_valuation_dataframe(df):
     print("🛠 Modifying Stock Valuation Report...")

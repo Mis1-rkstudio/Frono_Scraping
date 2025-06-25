@@ -20,7 +20,7 @@ def getStock(location):
     actions = ActionChains(driver)
 
     try:
-        # log("Logging in to FronoCloud...")
+        log("Logging in to FronoCloud...")
         login(driver, username, password)
 
         log("Navigating to Stock...")
@@ -47,7 +47,7 @@ def getStock(location):
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()=' Search ']"))).click()
         time.sleep(20)
 
-        # log("Exporting to Excel...")
+        log("Exporting to Excel...")
         actions.send_keys(Keys.TAB * 11 + Keys.SPACE).perform()
         time.sleep(2)
 

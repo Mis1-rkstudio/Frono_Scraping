@@ -20,7 +20,7 @@ def getPurchasePendingOrderThis(location):
     actions = ActionChains(driver)
 
     try:
-        # log("Opening FronoCloud login page and logging in...")
+        log("Opening FronoCloud login page and logging in...")
         login(driver, username, password)
 
         log("Navigating to 'Pending Purchase Order' report...")
@@ -28,11 +28,13 @@ def getPurchasePendingOrderThis(location):
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.LINK_TEXT, "Pending Purchase Order"))).click()
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="vendorWise-tab-justified"]'))).click()
 
-        time.sleep(2)
+    
+
+        time.sleep(1)
         btn = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//button[@id="08"]')))
         driver.execute_script("arguments[0].focus();", btn)
 
-        time.sleep(1)
+        time.sleep(2)
         actions.send_keys(Keys.TAB * 3).perform()
         driver.execute_script("arguments[0].click();", driver.switch_to.active_element)
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//a[text()='This Financial Year']"))).click()
@@ -43,17 +45,21 @@ def getPurchasePendingOrderThis(location):
         actions.key_down(Keys.SHIFT).send_keys(Keys.TAB).key_up(Keys.SHIFT).send_keys(Keys.SPACE).perform()
         actions.send_keys(Keys.ESCAPE).perform()
 
+        time.sleep(1)
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//label[text()='MS Item']"))).click()
+
+        time.sleep(2)
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()=' Search ']"))).click()
         time.sleep(10)
 
-        # log("Exporting to Excel...")
+        log("Exporting to Excel...")
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[@title='Excel']"))).click()
+        time.sleep(5)
         
         downloaded_file = wait_for_download(download_path)
         log(f"✅ Downloaded file saved as: {downloaded_file}")
 
         df = load_dataframe(downloaded_file)
-
         df = modify_pending_po(df)
         
         custom_schema = {

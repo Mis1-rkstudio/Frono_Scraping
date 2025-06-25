@@ -17,6 +17,8 @@ from scripts.stock import getStock
 
 def run_all_reports():
     for location in ["kolkata", "surat"]:
+    # for location in ["kolkata"]:
+    # for location in ["surat"]:
         print(f"\n📍 Running automation for: {location.upper()}")
 
         results = {

@@ -20,7 +20,7 @@ def getPurchasePendingOrderPrevious(location):
     actions = ActionChains(driver)
 
     try:
-        # log("Opening FronoCloud login page and logging in...")
+        log("Opening FronoCloud login page and logging in...")
         login(driver, username, password)
 
         log("Navigating to 'Pending Purchase Order' report...")
@@ -43,10 +43,14 @@ def getPurchasePendingOrderPrevious(location):
         actions.key_down(Keys.SHIFT).send_keys(Keys.TAB).key_up(Keys.SHIFT).send_keys(Keys.SPACE).perform()
         actions.send_keys(Keys.ESCAPE).perform()
 
+        time.sleep(1)
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//label[text()='MS Item']"))).click()
+
+        time.sleep(2)
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()=' Search ']"))).click()
         time.sleep(10)
 
-        # log("Exporting to Excel...")
+        log("Exporting to Excel...")
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[@title='Excel']"))).click()
         
         downloaded_file = wait_for_download(download_path)

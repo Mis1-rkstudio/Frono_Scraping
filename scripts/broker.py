@@ -20,7 +20,7 @@ def getBroker(location):
     actions = ActionChains(driver)
 
     try:
-        # log("Logging in to FronoCloud...")
+        log("Logging in to FronoCloud...")
         login(driver, username, password)
 
         log("Navigating to Broker page...")
@@ -41,12 +41,7 @@ def getBroker(location):
 
         df = modify_broker_dataframe(df)
 
-        custom_schema = {
-            "Created_Date": "DATE",
-        }
-
-        # log("Uploading to BigQuery...")
-        upload_to_bigquery(df, dataset_id="frono", table_name="broker", location=location, custom_schema_map=custom_schema)
+        upload_to_bigquery(df, dataset_id="frono", table_name="broker", location=location)
 
         # Delete file
         os.remove(downloaded_file)

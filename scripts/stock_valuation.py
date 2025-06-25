@@ -20,7 +20,7 @@ def getStockValuation(location):
     actions = ActionChains(driver)
 
     try:
-        # log("Opening FronoCloud login page and logging in...")
+        log("Opening FronoCloud login page and logging in...")
         login(driver, username, password)
 
         log("Navigating to 'Stock Valuation' report...")
@@ -39,7 +39,7 @@ def getStockValuation(location):
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()=' Search ']"))).click()
         time.sleep(10)
 
-        # log("Exporting to Excel...")
+        log("Exporting to Excel...")
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[@title='Excel']"))).click()
 
         downloaded_file = wait_for_download(download_path)

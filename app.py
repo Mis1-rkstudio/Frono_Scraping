@@ -83,7 +83,6 @@ def run_scraper():
         run_all_reports()
         return f"🚀 Scraper started at {now.strftime('%Y-%m-%d %H:%M:%S')} IST", 200
     else:
-        # run_all_reports() # remove this line in production
         return f"⏸️ Outside allowed time window (Current IST: {now.strftime('%H:%M:%S')}). Scraper not run.", 200
 
 if __name__ == "__main__":

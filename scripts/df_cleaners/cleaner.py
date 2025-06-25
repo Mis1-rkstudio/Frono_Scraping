@@ -16,17 +16,14 @@ def standardize_column_names(df):
     return df
 
 def standardize_date_column(df, column_name):
-    """
-    Standardizes a date column by replacing '/' with '-' and parsing in dd-mm-yyyy format.
-    Modifies the DataFrame in place.
-    """
+   
     df.loc[:, column_name] = (
         df[column_name]
         .astype(str)
         .str.strip()
         .str.replace("/", "-", regex=False)
     )
-    df.loc[:, column_name] = pd.to_datetime(df[column_name], format="%d-%m-%Y", errors="coerce")
+    # df.loc[:, column_name] = pd.to_datetime(df[column_name], errors="coerce")
     return df
 
 
@@ -69,14 +66,6 @@ def modify_sales_report_dataframe(df):
     # Drop 'Size Group' column
     if "Size Group" in df.columns:
         df.drop(columns=["Size Group"], inplace=True)
-
-    # df["Date"] = pd.to_datetime(df["Date"], errors='coerce').dt.strftime('%Y-%m-%d')
-
-    # Apply the robust parser function to your "Date" column
-    # df["Date"] = df["Date"].apply(robust_parse_date)
-
-    # Convert to standardized string format YYYY-MM-DD
-    # df["Date"] = df["Date"].dt.strftime('%d-%m-%Y')
 
     # Drop rows where 'Date' column has value 'Total'
     df = df[df["Date"] != "Total"]
@@ -150,19 +139,21 @@ def modify_stock_dataframe(df):
 
 def modify_sales_invoice_dataframe(df):
     print("🛠 Modifying Sales Invoice Data...")
+    
     # print all the column names
     df = df.drop(columns=["Unnamed: 0"])
 
     # ✅ Replace spaces and "/" in column names with underscores
     df = standardize_column_names(df)
-    df = standardize_date_column(df, "Date")
-    df = standardize_date_column(df, "Created_Date")
 
     # ✅ Drop columns where the header is blank
     df = df.loc[:, df.columns.str.strip() != ""]
 
     # ✅ Drop the last row
     df = df.iloc[:-1]
+
+    df = standardize_date_column(df, "Date")
+    df = standardize_date_column(df, "Created_Date")
 
     # ✅ Convert all data to string
     df = df.astype(str)
@@ -182,11 +173,6 @@ def modify_pending_po(df):
 
     # Track the last seen string
     last_str = None
-
-    # print(df["Vendor Name"])
-    # print("Index values:", df.index)
-
-    print(df['Color'])
 
     # Replace int values with last seen string
     for i in df.index:
@@ -250,6 +236,9 @@ def modify_sales_order_dataframe(df):
 def modify_broker_dataframe(df):
     print("🛠 Modifying Broker Data...")
 
+    df = standardize_column_names(df)
+    # df = standardize_date_column(df, "Created_Date")
+
     # Standardize column names.
     df.columns = (
     df.columns
@@ -278,7 +267,7 @@ def modify_customer_dataframe(df):
     
     # Select required columns
     df_extracted = df[[
-        "Company Name", "Cust/Ved Type", "Area", "City", "State", "Outstanding", "Broker", "Contact Name", "Number"
+        "Company Name", "Cust/Ved Type", "Area", "City", "State", "Outstanding", "Broker", "Contact Name", "Number", "Created Date"
     ]].copy()
     
     # Replace "/" with "_" and " " with "_"
@@ -313,7 +302,7 @@ def modify_customer_dataframe(df):
     
     # Reorder columns to keep "Type" immediately after "Outstanding"
     df_extracted = df_extracted[[
-        "Company_Name", "Cust_Ved_Type", "Area", "City", "State", "Outstanding", "Type", "Broker", "Contact_Name", "Number"
+        "Company_Name", "Cust_Ved_Type", "Area", "City", "State", "Outstanding", "Type", "Broker", "Contact_Name", "Number", "Created_Date"
     ]]
     
     return df_extracted
@@ -321,7 +310,6 @@ def modify_customer_dataframe(df):
 def modify_gr_report(df):
     print("🛠 Modifying GR Report...")
     
-
     # Step 6: Trim all columns
     df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
      # Step 11: Convert all string values to uppercase
@@ -331,12 +319,8 @@ def modify_gr_report(df):
     df_cleaned = df.dropna(how='all')
 
     # Step 2: Remove rows where "CN Number" or "Customer Name" contains "Total"
-    df_cleaned = df_cleaned[~df_cleaned['CN Number'].astype(str).str.contains('Total', na=False)]
-    df_cleaned = df_cleaned[~df_cleaned['Customer Name'].astype(str).str.contains('Total', na=False)]
-
-    # Step 3: Standardize Date Format in "CN Date"
-    # df_cleaned['CN Date'] = pd.to_datetime(df_cleaned['CN Date'], errors='coerce', dayfirst=True)
-    # df = standardize_all_dates(df)
+    df_cleaned = df_cleaned[~df_cleaned['CN Number'].astype(str).str.contains('TOTAL', na=False)]
+    df_cleaned = df_cleaned[~df_cleaned['Customer Name'].astype(str).str.contains('TOTAL', na=False)]
 
     # Step 4: Ensure "Qty" and "Amount" are numeric
     df_cleaned['Qty'] = pd.to_numeric(df_cleaned['Qty'], errors='coerce')
@@ -346,8 +330,6 @@ def modify_gr_report(df):
     df_cleaned['Customer Name'] = df_cleaned['Customer Name'].astype(str).str.split(',').str[0]
 
     df = df_cleaned
-    # Step 8: Extract only the value after "CN/" in "CN Number" into a new column "Invoice No"
-    # df["Invoice No"] = df["CN Number"].str.extract(r'CN/(.*)')
     
     df["Invoice No"] = df["CN Number"].str.extract(r'CN/([\d-]+/\d+)').fillna(df["CN Number"])
     # Step 9: Clean column names
@@ -360,7 +342,9 @@ def modify_gr_report(df):
     # Step 13: Replace blank values in "reason" column with "NOT MENTIONED"
     df["reason"] = df["reason"].replace("", "NOT MENTIONED").fillna("NOT MENTIONED")
     
-
+    df = standardize_column_names(df)
+    df = standardize_date_column(df, "cn_date")
+    
     # Step 6: Reset Index
     df.reset_index(drop=True, inplace=True)
     
@@ -378,14 +362,9 @@ def modify_purchase_invoice_dataframe(df):
     # ✅ Drop columns where the header is blank
     df = df.loc[:, df.columns.str.strip() != ""]
 
-    # Clean rows where 'Date' is NaN or empty string
-    if "Date" in df.columns:
-        # Drop rows where 'Date' is either NaN or empty string
-        df = df[~(df['Date'].isna() | (df['Date'].astype(str).str.strip() == ''))]
-        # df = standardize_all_dates(df)
-    else:
-        raise ValueError("The 'Date' column does not exist in the provided file.")
-    
+    df = standardize_date_column(df, "Date")
+    df = standardize_date_column(df, "Inv_Date")
+    df = standardize_date_column(df, "Created_Date")
 
     # ✅ Convert all data to string
     df = df.astype(str)

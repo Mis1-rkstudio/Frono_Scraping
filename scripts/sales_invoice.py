@@ -52,7 +52,7 @@ def getSalesInvoiceThis(location):
         }
 
         # Upload to BigQuery
-        upload_to_bigquery(df, table_name="sales_invoice", location=location, custom_schema_map=custom_schema)
+        upload_to_bigquery(df, table_name="sales_invoice", location=location)
 
         # Delete file
         os.remove(downloaded_file)
@@ -77,7 +77,7 @@ def getSalesInvoicePrevious(location):
     actions = ActionChains(driver)
 
     try:
-        # log("Logging in to FronoCloud...")
+        log("Logging in to FronoCloud...")
         login(driver, username, password)
 
         log("Navigating to Invoice page...")
@@ -103,13 +103,8 @@ def getSalesInvoicePrevious(location):
 
         df = modify_sales_invoice_dataframe(df)
 
-        custom_schema = {
-            "Date": "DATE",
-            "Created_Date": "DATE",
-        }
-
         # Upload to BigQuery
-        upload_to_bigquery(df, dataset_id="frono", table_name="sales_invoice", location=location, custom_schema_map=custom_schema)
+        upload_to_bigquery(df, dataset_id="frono", table_name="sales_invoice", location=location)
 
         # Delete file
         os.remove(downloaded_file)

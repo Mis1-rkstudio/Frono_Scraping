@@ -20,7 +20,7 @@ def getAccountReceivableFrono(location):
     actions = ActionChains(driver)
 
     try:
-        # log("Opening FronoCloud login page and logging in...")
+        log("Opening FronoCloud login page and logging in...")
         login(driver, username, password)
 
         log("Navigating to 'Account Receivable' report...")
@@ -29,18 +29,19 @@ def getAccountReceivableFrono(location):
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.LINK_TEXT, "Account Receivable / Customer Wise"))).click()
         time.sleep(1)
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//button[@title='Advance filter']"))).click()
-        time.sleep(2)
+        time.sleep(4)
         actions.key_down(Keys.ALT).send_keys('a').key_up(Keys.ALT).perform()
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Apply']"))).click()
 
+        # If there is an option of selecting the date then uncomment the following code
         time.sleep(1)
-        actions.send_keys(Keys.TAB).perform()
-        driver.execute_script("arguments[0].click();", driver.switch_to.active_element)
-        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//a[text()='Previous Financial Year']"))).click()
+        # log("Selecting 'Previous Financial Year' option...")
+        # actions.send_keys(Keys.TAB).perform()
+        # driver.execute_script("arguments[0].click();", driver.switch_to.active_element)
+        # WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//a[text()='Previous Financial Year']"))).click()
 
-        # WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//button[@data-target="#detailed"]'))).click()
         actions.send_keys(Keys.TAB * 4 + Keys.SPACE).perform()
-        time.sleep(15)
+        time.sleep(20)
         
         log("Exporting to Excel...")
         actions.send_keys(Keys.TAB * 9 + Keys.SPACE).perform()
